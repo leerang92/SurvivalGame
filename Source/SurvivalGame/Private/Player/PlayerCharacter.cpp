@@ -25,6 +25,8 @@ APlayerCharacter::APlayerCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	FollowCamera->SetupAttachment(CameraArm, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = true;
+
+	Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
 }
 
 // Called when the game starts or when spawned
@@ -35,9 +37,9 @@ void APlayerCharacter::BeginPlay()
 	Yaw = 0.0f;
 	Pitch = 0.0f;
 
-	UIPickup = CreateWidget<UUserWidget>(GetWorld(), PickupUI);
-	UIPickup->AddToViewport();
-	UIPickup->SetVisibility(ESlateVisibility::Hidden);
+	PickupTooltip = CreateWidget<UUserWidget>(GetWorld(), PickupUI);
+	PickupTooltip->AddToViewport();
+	PickupTooltip->SetVisibility(ESlateVisibility::Hidden);
 }
 
 // Called every frame
@@ -48,14 +50,12 @@ void APlayerCharacter::Tick(float DeltaTime)
 	if (Controller) 
 	{
 		AUsableActor* UsableActor = GetUseableItem();
-		//UE_LOG(LogClass, Warning, TEXT("%s"), *UsableActor->GetName());
 		if (FocusUsableActor != UsableActor)
 		{
 			if (FocusUsableActor)
 			{
-				UE_LOG(LogClass, Warning, TEXT("!"));
 				FocusUsableActor->OnEndFocus();
-				UIPickup->SetVisibility(ESlateVisibility::Hidden);
+				PickupTooltip->SetVisibility(ESlateVisibility::Hidden);
 			}
 			bHasFocus = true;
 		}
@@ -66,7 +66,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		{
 			if(bHasFocus)
 			FocusUsableActor->OnBeginFocus();
-			UIPickup->SetVisibility(ESlateVisibility::Visible);
+			PickupTooltip->SetVisibility(ESlateVisibility::Visible);
 			bHasFocus = false;
 		}
 	}
@@ -154,19 +154,6 @@ void APlayerCharacter::TurnRate(float Rate)
 	FRotator Rotation = Controller->GetControlRotation() - GetActorRotation();
 	FRotator CurrentRot = FRotator(Pitch, Yaw, 0);
 	FRotator InterRot = FMath::RInterpTo(CurrentRot, Rotation, GetWorld()->DeltaTimeSeconds, 15.0f);
-
-	//if (InterRot.Yaw < -12.0f)
-	//{
-	//	FRotator SetRot;
-	//	SetRot.Yaw -= 1;
-	//	SetActorRotation(SetRot);
-	//}
-	//else if (InterRot.Yaw > 12.0f)
-	//{
-	//	FRotator SetRot;
-	//	SetRot.Yaw += 1;
-	//	SetActorRotation(SetRot);
-	//}
 }
 
 void APlayerCharacter::LookUpAtRate(float Rate)
@@ -186,7 +173,10 @@ void APlayerCharacter::StartCrouch()
 
 void APlayerCharacter::PickupItem()
 {
-	//AUsableActor* 
+	if (FocusUsableActor)
+	{
+		FocusUsableActor->OnUsed(this);
+	}
 }
 
 AUsableActor * APlayerCharacter::GetUseableItem()

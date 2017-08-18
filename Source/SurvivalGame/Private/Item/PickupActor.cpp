@@ -33,6 +33,8 @@ void APickupActor::OnUsed(APawn * OwnerPawn)
 
 	UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
 
+	SetPickupActor();
+
 	if (bAllowRespawn)
 	{
 		FTimerHandle RespawnTimer;
@@ -40,6 +42,16 @@ void APickupActor::OnUsed(APawn * OwnerPawn)
 	else
 	{
 		Destroy();
+	}
+}
+
+void APickupActor::SetPickupActor()
+{
+	if (MeshComp)
+	{
+		MeshComp->SetVisibility(false);
+		MeshComp->SetSimulatePhysics(false);
+		MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }
 

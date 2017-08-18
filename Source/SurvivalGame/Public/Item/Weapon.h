@@ -34,6 +34,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	class UCapsuleComponent* Capsule;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	class USkeletalMeshComponent* WeaponMesh;
 
 	void SetOwnerPawn(APawn* Pawn);

@@ -25,6 +25,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void SetPickupActor();
+
 public:
 
 	UPROPERTY(EditAnywhere, Category = "Sound")

@@ -6,6 +6,7 @@
 #include "MyPlayerState.h"
 #include "UsableActor.h"
 #include "UserWidget.h"
+#include "Inventory.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -27,6 +28,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float BaseLookUpRate;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
+	class UInventory* Inventory;
+
 	UFUNCTION(BlueprintCallable, Category = "Item")
 	void FocusActor(AActor* TargetActor);
 
@@ -44,12 +48,9 @@ protected:
 	TSubclassOf<class UUserWidget> PickupUI;
 
 	UPROPERTY()
-	class UUserWidget* UIPickup;
-
+	class UUserWidget* PickupTooltip;
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	class USkeletalMeshComponent* WeaponMesh;
-
+	/* 카메라 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraArm;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
@@ -57,17 +58,11 @@ private:
 
 	/* 이동 함수들 */
 	void MoveForward(float Value);
-
 	void MoveRight(float Value);
-
 	void StartSprint();
-
 	void StopSprint();
-
 	void TurnRate(float Rate);
-
 	void LookUpAtRate(float Rate);
-
 	void StartCrouch();
 
 	UPROPERTY()
