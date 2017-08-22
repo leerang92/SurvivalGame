@@ -10,7 +10,6 @@ APickupActor::APickupActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	bAllowRespawn = true;
 }
 
 // Called when the game starts or when spawned
@@ -29,30 +28,7 @@ void APickupActor::Tick(float DeltaTime)
 
 void APickupActor::OnUsed(APawn * OwnerPawn)
 {
-	Super::OnUsed(OwnerPawn);
 
-	UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
-
-	SetPickupActor();
-
-	if (bAllowRespawn)
-	{
-		FTimerHandle RespawnTimer;
-	}
-	else
-	{
-		Destroy();
-	}
-}
-
-void APickupActor::SetPickupActor()
-{
-	if (MeshComp)
-	{
-		MeshComp->SetVisibility(false);
-		MeshComp->SetSimulatePhysics(false);
-		MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
 }
 
 void APickupActor::OnRespawn()

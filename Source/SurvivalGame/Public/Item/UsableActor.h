@@ -25,9 +25,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Item")
 	virtual void OnEndFocus();
 
-	virtual void OnUsed(APawn* Owner);
+	virtual void OnUsed(APawn* OwnerPawn);
+
+	void SetPickupActor();
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* MeshComp;
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	USoundCue* PickupSound;
+
+	bool bAllowRespawn;
 	
 };

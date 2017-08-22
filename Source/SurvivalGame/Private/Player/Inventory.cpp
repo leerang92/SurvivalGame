@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SurvivalGame.h"
+#include "PlayerCharacter.h"
 #include "Inventory.h"
 
 
@@ -12,6 +13,10 @@ UInventory::UInventory()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	WeaponSlotNum = 3;
+
+	AttachHand = TEXT("Hand_r");
+	AttachPrimary = TEXT("Primary");
+	AttachSecondery = TEXT("Secondery");
 
 	// ...
 }
@@ -26,6 +31,25 @@ void UInventory::BeginPlay()
 	
 }
 
+void UInventory::SetOwnerPawn(APawn * OwnerPawn)
+{
+	MyPawn = OwnerPawn;
+}
+
+void UInventory::EquipWeapon(AWeapon * NewWeapon)
+{
+	APlayerCharacter* Character = Cast<APlayerCharacter>(MyPawn);
+	if (Character)
+	{
+		NewWeapon->Mesh->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "WeaponSocket");
+	}
+}
+
+void UInventory::RemoveWeapon()
+{
+	CurrentWeapon->Destroy();
+}
+
 
 // Called every frame
 void UInventory::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -35,13 +59,44 @@ void UInventory::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 	// ...
 }
 
+
+
 void UInventory::AddWeapon(AWeapon * NewWeapon)
 {
 	if (WeaponList.Num() <= WeaponSlotNum) 
 	{
 		WeaponList.Add(NewWeapon);
+		NewWeapon->AttachToWeapon(MyPawn);
+		
+		if (WeaponList.Num() > 0 && CurrentWeapon == nullptr)
+		{
+			SetCurrentWeapon(WeaponList[0]);
+		}
+	}
+}
 
-		UE_LOG(LogClass, Warning, TEXT("%d"), WeaponList.Num());
+void UInventory::SetCurrentWeapon(AWeapon * NewWeapon)
+{
+	if (NewWeapon)
+	{
+		CurrentWeapon = NewWeapon;
+		CurrentWeapon->SetOwnerPawn(MyPawn);
+		CurrentWeapon->OnEquip();
+	}
+}
+
+FName UInventory::GetWeaponType(EWeaponSlot GetSlot) const
+{
+	switch (GetSlot)
+	{
+	case EWeaponSlot::Hand:
+		return AttachHand;
+	case EWeaponSlot::Primary:
+		return AttachPrimary;
+	case EWeaponSlot::Secondary:
+		return AttachSecondery;
+	default:
+		return "";
 	}
 }
 

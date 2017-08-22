@@ -31,12 +31,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
 	class UInventory* Inventory;
 
-	UFUNCTION(BlueprintCallable, Category = "Item")
-	void FocusActor(AActor* TargetActor);
-
-	UFUNCTION(BlueprintCallable, Category = "Item")
-	void EndFocusActor(AActor* TargetActor);
-
 protected:
 
 	EPlayerState CurrentState;
@@ -71,6 +65,8 @@ private:
 	bool bHasFocus;
 
 	void PickupItem();
+
+	void DropItem();
 
 	class AUsableActor* GetUseableItem();
 

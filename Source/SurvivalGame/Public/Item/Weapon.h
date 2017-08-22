@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "PlayerCharacter.h"
+#include "WeaponType.h"
 #include "Weapon.generated.h"
+
+class APickupWeapon;
 
 UENUM()
 enum class EWeaponState
@@ -37,15 +39,25 @@ public:
 	class UCapsuleComponent* Capsule;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	class USkeletalMeshComponent* WeaponMesh;
+	class UStaticMeshComponent* Mesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TSubclassOf<class APickupWeapon> PickupWeaponClass;
 
 	void SetOwnerPawn(APawn* Pawn);
 
-	FORCEINLINE class APlayerCharacter* GetOwnerPawn() const { return MyPawn; }
-	
+	void OnEquip(EWeaponSlot Slot = EWeaponSlot::Hand);
+
+	void OnUnEquip();
+
+	void AttachToWeapon(APawn* Pawn);
+
 protected:
 	UPROPERTY(Transient)
-	class APlayerCharacter* MyPawn;
+	class APawn* MyPawn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Type", meta = (AllowPrivateAccess = "true"))
+	EWeaponSlot WeaponSlot;
 
 public:
 	

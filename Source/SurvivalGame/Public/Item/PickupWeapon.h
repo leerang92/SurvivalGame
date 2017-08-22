@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Item/PickupActor.h"
+#include "Item/UsableActor.h"
 #include "Weapon.h"
 #include "PickupWeapon.generated.h"
 
@@ -10,11 +10,12 @@
  * 
  */
 UCLASS()
-class SURVIVALGAME_API APickupWeapon : public APickupActor
+class SURVIVALGAME_API APickupWeapon : public AUsableActor
 {
 	GENERATED_BODY()
 	
 public:
+	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	TSubclassOf<class AWeapon> WeaponClass;

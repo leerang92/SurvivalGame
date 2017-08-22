@@ -8,7 +8,9 @@
 AUsableActor::AUsableActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+
+	bAllowRespawn = true;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Component"));
 	RootComponent = MeshComp;
@@ -39,7 +41,29 @@ void AUsableActor::OnEndFocus()
 	MeshComp->SetRenderCustomDepth(false);
 }
 
-void AUsableActor::OnUsed(APawn* Owner)
+void AUsableActor::OnUsed(APawn* OwnerPawn)
 {
+	UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
+
+	SetPickupActor();
+
+	if (bAllowRespawn)
+	{
+		FTimerHandle RespawnTimer;
+	}
+	else
+	{
+		Destroy();
+	}
+}
+
+void AUsableActor::SetPickupActor()
+{
+	if (MeshComp)
+	{
+		MeshComp->SetVisibility(false);
+		MeshComp->SetSimulatePhysics(false);
+		MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 

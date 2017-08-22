@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SurvivalGame.h"
+#include "PickupWeapon.h"
 #include "PlayerCharacter.h"
 
 
@@ -40,6 +41,8 @@ void APlayerCharacter::BeginPlay()
 	PickupTooltip = CreateWidget<UUserWidget>(GetWorld(), PickupUI);
 	PickupTooltip->AddToViewport();
 	PickupTooltip->SetVisibility(ESlateVisibility::Hidden);
+
+	Inventory->SetOwnerPawn(this);
 }
 
 // Called every frame
@@ -89,22 +92,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	InputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::StartCrouch);
 
 	InputComponent->BindAction("Pickup", IE_Pressed, this, &APlayerCharacter::PickupItem);
-}
-
-void APlayerCharacter::FocusActor(AActor * TargetActor)
-{
-	if (TargetActor) {
-		AUsableActor* Item = Cast<AUsableActor>(TargetActor);
-		Item->MeshComp->SetVisibility(false);
-	}
-}
-
-void APlayerCharacter::EndFocusActor(AActor * TargetActor)
-{
-	if (TargetActor) {
-		AUsableActor* Item = Cast<AUsableActor>(TargetActor);
-		Item->MeshComp->SetVisibility(true);
-	}
+	InputComponent->BindAction("DropItem", IE_Pressed, this, &APlayerCharacter::DropItem);
 }
 
 void APlayerCharacter::MoveForward(float Value)
@@ -176,6 +164,20 @@ void APlayerCharacter::PickupItem()
 	if (FocusUsableActor)
 	{
 		FocusUsableActor->OnUsed(this);
+	}
+}
+
+void APlayerCharacter::DropItem()
+{
+	FVector DropLoc = (GetActorForwardVector() + GetActorLocation());
+
+	APickupWeapon* NewWeapon = GetWorld()->SpawnActor<APickupWeapon>(Inventory->CurrentWeapon->PickupWeaponClass, DropLoc, FRotator::ZeroRotator);
+
+	if (NewWeapon)
+	{
+		Inventory->RemoveWeapon();
+		NewWeapon->MeshComp->SetVisibility(true);
+		NewWeapon->MeshComp->SetSimulatePhysics(true);
 	}
 }
 
