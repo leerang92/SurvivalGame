@@ -23,16 +23,49 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable, Category = "State")
+	EPlayerState GetPlayerState() const { return CurrentState; }
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	FORCEINLINE bool GetIsFire() const { 
+		if (Inventory->GetCurrentWeapon())
+		{
+			return Inventory->CurrentWeapon->GetWeaponState();
+		}
+		return false;
+	}
+
+protected:
+
+	UPROPERTY()
+	class UUserWidget* PickupTooltip;
+
+	template<int Value>
+	void SwapWeapon();
+
+	void ZoomIn();
+	void ZoomOut();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
+	class UInventory* Inventory;
+
+	/* 카메라 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	class USpringArmComponent* CameraArm;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* FollowCamera;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float BaseTurnRate;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float BaseLookUpRate;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
-	class UInventory* Inventory;
+	UPROPERTY(BlueprintReadOnly, Category = "Camera")
+	bool IsZoom;
 
 protected:
-
+	// 현재 상태
 	EPlayerState CurrentState;
 
 	float Yaw;
@@ -41,14 +74,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "User Interface")
 	TSubclassOf<class UUserWidget> PickupUI;
 
-	UPROPERTY()
-	class UUserWidget* PickupTooltip;
+
 private:
-	/* 카메라 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraArm;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* FollowCamera;
 
 	/* 이동 함수들 */
 	void MoveForward(float Value);
@@ -58,6 +85,10 @@ private:
 	void TurnRate(float Rate);
 	void LookUpAtRate(float Rate);
 	void StartCrouch();
+
+	void StartFire();
+	void StopFire();
+	void StartReload();
 
 	UPROPERTY()
 	class AUsableActor* FocusUsableActor;
@@ -71,6 +102,5 @@ private:
 	class AUsableActor* GetUseableItem();
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "State")
-	EPlayerState GetPlayerState() const { return CurrentState; }
+	
 };

@@ -28,7 +28,6 @@ void APickupActor::Tick(float DeltaTime)
 
 void APickupActor::OnUsed(APawn * OwnerPawn)
 {
-
 }
 
 void APickupActor::OnRespawn()

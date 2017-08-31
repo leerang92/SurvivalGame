@@ -15,6 +15,8 @@ class SURVIVALGAME_API APickupWeapon : public AUsableActor
 	GENERATED_BODY()
 	
 public:
+	APickupWeapon();
+
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")

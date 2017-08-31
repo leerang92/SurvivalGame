@@ -4,9 +4,15 @@
 #include "PlayerCharacter.h"
 #include "PickupWeapon.h"
 
-void APickupWeapon::BeginPlay()
+APickupWeapon::APickupWeapon()
 {
 	MeshComp->SetSimulatePhysics(true);
+	MeshComp->SetRelativeRotation(FRotator(90.0f, 0, 0));
+}
+
+void APickupWeapon::BeginPlay()
+{
+	
 }
 
 void APickupWeapon::OnUsed(APawn * Owner)
@@ -24,7 +30,5 @@ void APickupWeapon::OnUsed(APawn * Owner)
 
 		MyPawn->Inventory->AddWeapon(NewWeapon);
 		//MyPawn->Inventory->AddWeapon(WeaponClass->GetDefaultObject<AWeapon>());
-
-	
 	}
 }

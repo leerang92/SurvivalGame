@@ -12,6 +12,10 @@ APlayerCharacter::APlayerCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	bHasFocus = true;
+	IsZoom = false;
+
+	BaseTurnRate = 45.f;
+	BaseLookUpRate = 45.f;
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -25,9 +29,10 @@ APlayerCharacter::APlayerCharacter()
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	FollowCamera->SetupAttachment(CameraArm, USpringArmComponent::SocketName);
-	FollowCamera->bUsePawnControlRotation = true;
+	FollowCamera->bUsePawnControlRotation = false;
 
 	Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
+	
 }
 
 // Called when the game starts or when spawned
@@ -38,11 +43,11 @@ void APlayerCharacter::BeginPlay()
 	Yaw = 0.0f;
 	Pitch = 0.0f;
 
+	Inventory->SetOwnerPawn(this);
+
 	PickupTooltip = CreateWidget<UUserWidget>(GetWorld(), PickupUI);
 	PickupTooltip->AddToViewport();
 	PickupTooltip->SetVisibility(ESlateVisibility::Hidden);
-
-	Inventory->SetOwnerPawn(this);
 }
 
 // Called every frame
@@ -80,6 +85,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	/* 이동 */
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
@@ -91,32 +97,56 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	InputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::StopSprint);
 	InputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::StartCrouch);
 
+	/* 무기 발사, 재장전 */
+	InputComponent->BindAction("Fire", IE_Pressed, this, &APlayerCharacter::StartFire);
+	InputComponent->BindAction("Fire", IE_Released, this, &APlayerCharacter::StopFire);
+	InputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::StartReload);
+
+	InputComponent->BindAction("Zoom", IE_Pressed, this, &APlayerCharacter::ZoomIn);
+	InputComponent->BindAction("Zoom", IE_Released, this, &APlayerCharacter::ZoomOut);
+
+	/* 아이템 줍기, 버리기*/
 	InputComponent->BindAction("Pickup", IE_Pressed, this, &APlayerCharacter::PickupItem);
 	InputComponent->BindAction("DropItem", IE_Pressed, this, &APlayerCharacter::DropItem);
+
+	/* 무기 교체 */
+	InputComponent->BindAction("SwapWeapon1", IE_Pressed, this, &APlayerCharacter::SwapWeapon<1>);
+	InputComponent->BindAction("SwapWeapon2", IE_Pressed, this, &APlayerCharacter::SwapWeapon<2>);
+}
+
+void APlayerCharacter::ZoomIn()
+{
+	IsZoom = true;
+	FollowCamera->FieldOfView = 60.0f;
+}
+
+void APlayerCharacter::ZoomOut()
+{
+	IsZoom = false;
+	FollowCamera->FieldOfView = 90.0f;
 }
 
 void APlayerCharacter::MoveForward(float Value)
 {
-	if ((Controller != NULL) && (Value != 0.0f))
-	{
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator Yaw = FRotator(0, Rotation.Yaw, 0);
+	// find out which way is forward
+	const FRotator Rotation = Controller->GetControlRotation();
+	const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		const FVector Direction = FRotationMatrix(Yaw).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
-	}
+	// get forward vector
+	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	AddMovementInput(Direction, Value);
 }
 
 void APlayerCharacter::MoveRight(float Value)
 {
-	if ((Controller != NULL) && (Value != 0.0f))
-	{
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator Yaw = FRotator(0, Rotation.Yaw, 0);
+	// find out which way is right
+	const FRotator Rotation = Controller->GetControlRotation();
+	const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		const FVector Direction = FRotationMatrix(Yaw).GetUnitAxis(EAxis::Y);
-		AddMovementInput(Direction, Value);
-	}
+	// get right vector 
+	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	// add movement in that direction
+	AddMovementInput(Direction, Value);
 }
 
 void APlayerCharacter::StartSprint()
@@ -137,11 +167,13 @@ void APlayerCharacter::StopSprint()
 
 void APlayerCharacter::TurnRate(float Rate)
 {
+	// calculate delta for this frame from the rate information
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	/*AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 
 	FRotator Rotation = Controller->GetControlRotation() - GetActorRotation();
 	FRotator CurrentRot = FRotator(Pitch, Yaw, 0);
-	FRotator InterRot = FMath::RInterpTo(CurrentRot, Rotation, GetWorld()->DeltaTimeSeconds, 15.0f);
+	FRotator InterRot = FMath::RInterpTo(CurrentRot, Rotation, GetWorld()->DeltaTimeSeconds, 15.0f);*/
 }
 
 void APlayerCharacter::LookUpAtRate(float Rate)
@@ -159,6 +191,28 @@ void APlayerCharacter::StartCrouch()
 	}
 }
 
+void APlayerCharacter::StartFire()
+{
+	if (Inventory->GetCurrentWeapon() != nullptr) 
+	{
+		Inventory->GetCurrentWeapon()->StartFire();
+	}
+}
+
+void APlayerCharacter::StopFire()
+{
+	if (Inventory->GetCurrentWeapon() != nullptr)
+		Inventory->GetCurrentWeapon()->StopFire();
+}
+
+void APlayerCharacter::StartReload()
+{
+	if (Inventory->GetCurrentWeapon() != nullptr)
+	{
+		Inventory->GetCurrentWeapon()->StartReload();
+	}
+}
+
 void APlayerCharacter::PickupItem()
 {
 	if (FocusUsableActor)
@@ -169,16 +223,14 @@ void APlayerCharacter::PickupItem()
 
 void APlayerCharacter::DropItem()
 {
-	FVector DropLoc = (GetActorForwardVector() + GetActorLocation());
+	Inventory->DropItem();
+}
 
-	APickupWeapon* NewWeapon = GetWorld()->SpawnActor<APickupWeapon>(Inventory->CurrentWeapon->PickupWeaponClass, DropLoc, FRotator::ZeroRotator);
-
-	if (NewWeapon)
-	{
-		Inventory->RemoveWeapon();
-		NewWeapon->MeshComp->SetVisibility(true);
-		NewWeapon->MeshComp->SetSimulatePhysics(true);
-	}
+template<int Value>
+void APlayerCharacter::SwapWeapon()
+{
+	int Index = Value - 1;
+	Inventory->SwapWeapon(Index);
 }
 
 AUsableActor * APlayerCharacter::GetUseableItem()

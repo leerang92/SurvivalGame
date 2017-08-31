@@ -7,6 +7,22 @@
 #include "WeaponType.h"
 #include "Inventory.generated.h"
 
+USTRUCT()
+struct FWeaponSlot
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	class AWeapon* First;
+
+	UPROPERTY()
+	class AWeapon* Second;
+
+	UPROPERTY()
+	class AWeapon* Auxiliary;
+
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SURVIVALGAME_API UInventory : public UActorComponent
 {
@@ -25,39 +41,53 @@ public:
 	// 인벤토리에 무기 추가
 	void AddWeapon(class AWeapon* NewWeapon);
 
-	// 주무기 장착
-	void SetCurrentWeapon(AWeapon* NewWeapon);
-
 	// 무기 타입에 따른 장착 포인트 반환
-	FName GetWeaponType(EWeaponSlot GetSlot) const;
+	FName GetWeaponType(const EWeaponSlot GetSlot) const;
 
-	class AWeapon* CurrentWeapon;
+	// 무기 버리기
+	void DropItem();
 
-	class AWeapon* SeconderyWeapon;
+	// 무기 교체
+	void SwapWeapon(const int Index);
 
-	void RemoveWeapon();
-
+	FORCEINLINE class AWeapon* GetCurrentWeapon() const { 
+		return CurrentWeapon; 
+	}
 
 protected:
-
-	EWeaponSlot Slot;
-
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	void EquipWeapon(class AWeapon* NewWeapon);
+	// 주무기 장착
+	void SetCurrentWeapon(AWeapon* NewWeapon, AWeapon* LastWeapon);
 
+	// 무기 배열에서 버린 무기 데이터 삭제
+	void RemoveWeapon();
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Slot")
+	int WeaponSlotNum;
+
+	// 현재 장착중인 무기
+	UPROPERTY()
+		class AWeapon* CurrentWeapon;
+
+protected:
+	// 무기 배열
+	UPROPERTY()
 	TArray<AWeapon*> WeaponList;
 
+	// 장착할 슬롯
+	EWeaponSlot Slot;
+
 private:
+	UPROPERTY()
 	class APawn* MyPawn;
 
+
+
+	/* 무기 장착할 소켓 이름들 */
 	FName AttachHand;
 	FName AttachPrimary;
 	FName AttachSecondery;
 
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
-	int WeaponSlotNum;
 };
