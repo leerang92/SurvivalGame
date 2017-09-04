@@ -40,9 +40,6 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Yaw = 0.0f;
-	Pitch = 0.0f;
-
 	Inventory->SetOwnerPawn(this);
 
 	PickupTooltip = CreateWidget<UUserWidget>(GetWorld(), PickupUI);
@@ -110,20 +107,37 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	InputComponent->BindAction("DropItem", IE_Pressed, this, &APlayerCharacter::DropItem);
 
 	/* 무기 교체 */
-	InputComponent->BindAction("SwapWeapon1", IE_Pressed, this, &APlayerCharacter::SwapWeapon<1>);
-	InputComponent->BindAction("SwapWeapon2", IE_Pressed, this, &APlayerCharacter::SwapWeapon<2>);
+	InputComponent->BindAction("SwapWeapon1", IE_Pressed, this, &APlayerCharacter::SwapWeapon<0>);
+	InputComponent->BindAction("SwapWeapon2", IE_Pressed, this, &APlayerCharacter::SwapWeapon<1>);
+}
+
+FRotator APlayerCharacter::GetAimOffset(float AimPitch)
+{
+	FRotator LookRot = GetControlRotation() - GetActorRotation();
+	LookRot.Normalize();
+
+	FRotator InterRot = FMath::RInterpTo(FRotator(0, AimPitch, 0), LookRot, GetWorld()->GetDeltaSeconds(), 0.0f);
+
+	AimPitch = FMath::ClampAngle(InterRot.Pitch, -90.0f, 90.0f);
+
+	return FRotator(AimPitch, 0, 0);
 }
 
 void APlayerCharacter::ZoomIn()
 {
-	IsZoom = true;
-	FollowCamera->FieldOfView = 60.0f;
+	if (Inventory->GetCurrentWeapon()) 
+	{
+		IsZoom = true;
+		FollowCamera->FieldOfView = 60.0f;
+		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	}
 }
 
 void APlayerCharacter::ZoomOut()
 {
 	IsZoom = false;
 	FollowCamera->FieldOfView = 90.0f;
+	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
 }
 
 void APlayerCharacter::MoveForward(float Value)
@@ -229,8 +243,7 @@ void APlayerCharacter::DropItem()
 template<int Value>
 void APlayerCharacter::SwapWeapon()
 {
-	int Index = Value - 1;
-	Inventory->SwapWeapon(Index);
+	Inventory->SwapWeapon(Value);
 }
 
 AUsableActor * APlayerCharacter::GetUseableItem()

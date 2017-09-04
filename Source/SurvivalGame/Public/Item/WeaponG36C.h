@@ -16,13 +16,9 @@ class SURVIVALGAME_API AWeaponG36C : public AWeapon
 public:
 	virtual void OnEquip(EWeaponSlot Slot = EWeaponSlot::Hand) override;
 
-	void OnUnEquip();
-
 	virtual void OnReload() override;
 public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	FVector SetWeaponLocation;
-
-	FTimerHandle Timer;
 };

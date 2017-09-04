@@ -35,6 +35,9 @@ public:
 		return false;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	FRotator GetAimOffset(float AimPitch);
+
 protected:
 
 	UPROPERTY()
@@ -67,9 +70,6 @@ public:
 protected:
 	// 현재 상태
 	EPlayerState CurrentState;
-
-	float Yaw;
-	float Pitch;
 
 	UPROPERTY(EditAnywhere, Category = "User Interface")
 	TSubclassOf<class UUserWidget> PickupUI;

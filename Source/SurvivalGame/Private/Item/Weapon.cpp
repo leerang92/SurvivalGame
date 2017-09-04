@@ -15,31 +15,26 @@ AWeapon::AWeapon()
 	WeaponSlot = EWeaponSlot::Primary;
 	CurrentState = EWeaponState::Idle;
 
+	WeaponType = EWeaponType::Rifle;
+
 	bReloading = false;
 
 	FireInterval = 0.15f;
-	NextInterval = FireInterval;
-
-	MaxAmmo = 30.0f;
-	CurrentAmmo = MaxAmmo;
+	NextInterval = 0.0f;
 
 	Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
 	RootComponent = Capsule;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Static Mesh"));
 	Mesh->AttachTo(Capsule);
-
-	//ClipMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Clip Mesh Component"));
-	//ClipMesh->AttachTo(Mesh, TEXT("ClipSocket"));
-	//ClipMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//ClipMesh->AttachTo(Capsule);
-
 }
 
 // Called when the game starts or when spawned
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CurrentAmmo = MaxAmmo;
 
 	Clip = GetWorld()->SpawnActor<AWeaponClip>(ClipClass, Mesh->GetSocketLocation(TEXT("ClipSocket")), FRotator::ZeroRotator);
 	if (Clip)
@@ -143,6 +138,7 @@ void AWeapon::OnReload()
 {
 	bReloading = true;
 	CurrentAmmo = MaxAmmo;
+	NextInterval = 0.0f;
 
 	// 재장전 애니메이션 재생 후 재장전 완료
 	float Duration = SetAnimation(ReloadAnim);

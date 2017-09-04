@@ -49,7 +49,8 @@ public:
 
 	// 무기 교체
 	void SwapWeapon(const int Index);
-
+	
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	FORCEINLINE class AWeapon* GetCurrentWeapon() const { 
 		return CurrentWeapon; 
 	}

@@ -20,6 +20,13 @@ enum class EWeaponState
 	Reload
 };
 
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	Rifle		UMETA(DisplayName = "Rifle"),
+	Shotgun		UMETA(DisplayName = "Shotgun"),
+};
+
 UCLASS()
 class SURVIVALGAME_API AWeapon : public AActor
 {
@@ -49,6 +56,9 @@ public:
 	void StopReload();
 
 	FORCEINLINE bool GetWeaponState() const { return CurrentState == EWeaponState::Fire; }
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 
 protected:
 	// Called when the game starts or when spawned
@@ -105,12 +115,12 @@ public:
 	USoundCue* ReloadSound;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon")
-	UStaticMeshComponent* ClipMesh;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon")
 	TSubclassOf<class AWeaponClip> ClipClass;
 
 	class AWeaponClip* Clip;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Type")
+	EWeaponType WeaponType;
 
 protected:
 	UPROPERTY(Transient)
