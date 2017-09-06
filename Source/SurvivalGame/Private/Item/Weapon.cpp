@@ -18,6 +18,7 @@ AWeapon::AWeapon()
 	WeaponType = EWeaponType::Rifle;
 
 	bReloading = false;
+	bFire = false;
 
 	FireInterval = 0.15f;
 	NextInterval = 0.0f;
@@ -35,13 +36,6 @@ void AWeapon::BeginPlay()
 	Super::BeginPlay();
 
 	CurrentAmmo = MaxAmmo;
-
-	Clip = GetWorld()->SpawnActor<AWeaponClip>(ClipClass, Mesh->GetSocketLocation(TEXT("ClipSocket")), FRotator::ZeroRotator);
-	if (Clip)
-	{
-		Clip->OnEquip(Mesh);
-	}
-
 }
 
 // Called every frame
@@ -49,7 +43,7 @@ void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	switch (CurrentState)
+	/*switch (CurrentState)
 	{
 	case EWeaponState::Idle:
 		break;
@@ -75,7 +69,7 @@ void AWeapon::Tick(float DeltaTime)
 		if(IsReload())
 			OnReload();
 		break;
-	}
+	}*/
 }
 
 void AWeapon::SetOwnerPawn(APawn * Pawn)
@@ -93,6 +87,7 @@ void AWeapon::OnEquip(EWeaponSlot Slot)
 	{
 		FName AttachPoint = PC->Inventory->GetWeaponType(Slot);
 		Mesh->AttachToComponent(PC->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
+		Mesh->SetRelativeLocation(SetWeaponLocation);
 	}
 }
 
@@ -106,14 +101,14 @@ void AWeapon::AttachToWeapon(APawn* Pawn)
 	OnEquip(WeaponSlot);
 }
 
-void AWeapon::OnShot()
+void AWeapon::OnFire()
 {
 	APlayerCharacter* PC = Cast<APlayerCharacter>(MyPawn);
-	if (PC)
+	if (PC && IsFire())
 	{
 		/* 발사 방향 구하기 */
 		const FVector CamLoc = PC->FollowCamera->GetComponentLocation();
-		FRotator CamRot = PC->FollowCamera->GetComponentRotation();
+		const FRotator CamRot = PC->FollowCamera->GetComponentRotation();
 		const FVector MuzzleLocation = GetMuzzleLocation();
 
 		const FVector ZeroDir = CamRot.RotateVector(FVector::ForwardVector);
@@ -131,20 +126,79 @@ void AWeapon::OnShot()
 		{
 			NewProjectile->FireDirection(ProjectileDir);
 		}
+
+		CurrentAmmo--;
+		if (IsReload())
+		{
+			OnReload();
+		}
 	}
 }
 
 void AWeapon::OnReload()
 {
 	bReloading = true;
-	CurrentAmmo = MaxAmmo;
-	NextInterval = 0.0f;
-
+	CurrentState = EWeaponState::Reload;
 	// 재장전 애니메이션 재생 후 재장전 완료
-	float Duration = SetAnimation(ReloadAnim);
+	const float Duration = SetAnimation(ReloadAnim);
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AWeapon::StopReload, Duration, false);
 
 	PlayWeaponSound(ReloadSound);
+}
+
+void AWeapon::SetWeaponState()
+{	
+	if (IsFire()) 
+	{
+		CurrentState = EWeaponState::Fire;
+		GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AWeapon::OnFire, FireInterval, true);
+	}
+	else
+	{
+		CurrentState = EWeaponState::Idle;
+	}
+}
+
+void AWeapon::StartFire()
+{
+	bFire = true;
+	SetWeaponState();
+}
+
+void AWeapon::StopFire()
+{
+	bFire = false;
+	GetWorldTimerManager().ClearTimer(FireTimerHandle);
+	SetWeaponState();
+}
+
+void AWeapon::StartReload()
+{
+	if (CurrentAmmo < MaxAmmo)
+	{
+		OnReload();
+	}
+}
+
+void AWeapon::StopReload()
+{
+	bReloading = false;
+	CurrentAmmo = MaxAmmo;
+	SetWeaponState();
+}
+
+bool AWeapon::IsFire() const
+{
+	const bool bState = CurrentState == EWeaponState::Idle || CurrentState == EWeaponState::Fire;
+	return bState && bFire && !bReloading;
+}
+
+bool AWeapon::IsReload() const
+{
+	//bool bState = CurrentState == EWeaponState::Idle || CurrentState == EWeaponState::Fire;
+	const bool bAmmo = CurrentAmmo <= 0;
+	const bool bState = CurrentState == EWeaponState::Idle || CurrentState == EWeaponState::Fire;
+	return bAmmo && bState && !bReloading;
 }
 
 float AWeapon::SetAnimation(UAnimMontage * Animation, float InPlayRate, FName StartSelectName)
@@ -165,52 +219,5 @@ void AWeapon::PlayWeaponSound(USoundCue * SoundCue)
 	{
 		AC = UGameplayStatics::SpawnSoundAttached(SoundCue, MyPawn->GetRootComponent());
 	}
-}
-
-void AWeapon::StartFire()
-{
-	if (IsFire())
-	{
-		CurrentState = EWeaponState::Fire;
-	}
-}
-
-void AWeapon::StopFire()
-{
-	if (CurrentState == EWeaponState::Fire)
-	{
-		CurrentState = EWeaponState::Idle;
-	}
-}
-
-void AWeapon::StartReload()
-{
-	if (IsReload())
-	{
-		CurrentState = EWeaponState::Reload;
-	}
-}
-
-void AWeapon::StopReload()
-{
-	if (CurrentState == EWeaponState::Reload)
-	{
-		//PlayWeaponSound(ReloadSound);
-		bReloading = false;
-		CurrentState = EWeaponState::Idle;
-	}
-}
-
-bool AWeapon::IsFire() const
-{
-	bool bState = CurrentState == EWeaponState::Idle || CurrentState == EWeaponState::Fire;
-	return bState && !bReloading;
-}
-
-bool AWeapon::IsReload() const
-{
-	//bool bState = CurrentState == EWeaponState::Idle || CurrentState == EWeaponState::Fire;
-	bool bAmmo = CurrentAmmo <= 0 || CurrentAmmo < MaxAmmo;
-	return bAmmo && !bReloading;
 }
 

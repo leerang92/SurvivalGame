@@ -12,13 +12,4 @@ UCLASS()
 class SURVIVALGAME_API AWeaponG36C : public AWeapon
 {
 	GENERATED_BODY()
-	
-public:
-	virtual void OnEquip(EWeaponSlot Slot = EWeaponSlot::Hand) override;
-
-	virtual void OnReload() override;
-public:
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	FVector SetWeaponLocation;
 };

@@ -111,16 +111,17 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	InputComponent->BindAction("SwapWeapon2", IE_Pressed, this, &APlayerCharacter::SwapWeapon<1>);
 }
 
-FRotator APlayerCharacter::GetAimOffset(float AimPitch)
+FRotator APlayerCharacter::GetAimOffset(float AimPitch, float AimYaw)
 {
 	FRotator LookRot = GetControlRotation() - GetActorRotation();
 	LookRot.Normalize();
 
-	FRotator InterRot = FMath::RInterpTo(FRotator(0, AimPitch, 0), LookRot, GetWorld()->GetDeltaSeconds(), 0.0f);
+	FRotator InterRot = FMath::RInterpTo(FRotator(AimPitch, AimYaw, 0), LookRot, GetWorld()->GetDeltaSeconds(), 0.0f);
 
 	AimPitch = FMath::ClampAngle(InterRot.Pitch, -90.0f, 90.0f);
+	AimYaw = FMath::ClampAngle(InterRot.Yaw, -90.0f, 90.0f);
 
-	return FRotator(AimPitch, 0, 0);
+	return FRotator(AimPitch, AimYaw, 0);
 }
 
 void APlayerCharacter::ZoomIn()
@@ -248,17 +249,19 @@ void APlayerCharacter::SwapWeapon()
 
 AUsableActor * APlayerCharacter::GetUseableItem()
 {
-	FVector CamLoc = FVector::ZeroVector;
-	FRotator CamRot = FRotator::ZeroRotator;
-
 	if (Controller == nullptr)
 		return nullptr;
 
+	FVector CamLoc = FVector::ZeroVector;
+	FRotator CamRot = FRotator::ZeroRotator;
+
+	// 플레이어가 봐라보는 방향
 	Controller->GetPlayerViewPoint(CamLoc, CamRot);
 	const FVector StartTrace = CamLoc;
 	const FVector Direction = CamRot.Vector();
 	const FVector EndTrace = StartTrace + (Direction * 500.0f);
 
+	// 트레이스 발사
 	FCollisionQueryParams TraceParam(TEXT("TraceUsableActor"), true, this);
 	TraceParam.bTraceAsyncScene = true;
 	TraceParam.bReturnPhysicalMaterial = false;

@@ -61,6 +61,8 @@ protected:
 	// 주무기 장착
 	void SetCurrentWeapon(AWeapon* NewWeapon, AWeapon* LastWeapon);
 
+	void FinishSwapWeapon();
+
 	// 무기 배열에서 버린 무기 데이터 삭제
 	void RemoveWeapon();
 
@@ -70,7 +72,10 @@ public:
 
 	// 현재 장착중인 무기
 	UPROPERTY()
-		class AWeapon* CurrentWeapon;
+	class AWeapon* CurrentWeapon;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	UAnimMontage* EquipMontage;
 
 protected:
 	// 무기 배열
@@ -84,7 +89,7 @@ private:
 	UPROPERTY()
 	class APawn* MyPawn;
 
-
+	FTimerHandle SwapTimerHandle;
 
 	/* 무기 장착할 소켓 이름들 */
 	FName AttachHand;

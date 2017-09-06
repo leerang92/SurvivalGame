@@ -49,6 +49,8 @@ void UInventory::SwapWeapon(const int Index)
 {
 	if (WeaponList.Num() > Index)
 	{
+		const float Duration = CurrentWeapon->SetAnimation(EquipMontage);
+		GetWorld()->GetTimerManager().SetTimer(SwapTimerHandle, this, &UInventory::FinishSwapWeapon, Duration, false);
 		SetCurrentWeapon(WeaponList[Index], CurrentWeapon);
 	}
 }
@@ -98,6 +100,11 @@ void UInventory::SetCurrentWeapon(AWeapon * NewWeapon, AWeapon* LastWeapon)
 		CurrentWeapon->SetOwnerPawn(MyPawn);
 		CurrentWeapon->OnEquip();
 	}
+}
+
+void UInventory::FinishSwapWeapon()
+{
+	
 }
 
 void UInventory::DropItem()

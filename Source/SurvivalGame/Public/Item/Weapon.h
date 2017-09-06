@@ -6,7 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "WeaponType.h"
 #include "Projectile.h"
-#include "WeaponClip.h"
 #include "Weapon.generated.h"
 
 class APickupWeapon;
@@ -53,7 +52,11 @@ public:
 
 	void StartReload();
 
-	void StopReload();
+	virtual void StopReload();
+
+	virtual void OnReload();
+
+	float SetAnimation(UAnimMontage* Animation, float InPlayRate = 1.0f, FName StartSelectName = NAME_None);
 
 	FORCEINLINE bool GetWeaponState() const { return CurrentState == EWeaponState::Fire; }
 
@@ -65,17 +68,15 @@ protected:
 	virtual void BeginPlay() override;
 
 	// 발사체 생성 및 발사
-	void OnShot();
-
-	virtual void OnReload();
+	void OnFire();
 
 	FORCEINLINE FVector GetMuzzleLocation() const {
 		return Mesh->GetSocketLocation(TEXT("MuzzleSocket"));
 	}
 
-	float SetAnimation(UAnimMontage* Animation, float InPlayRate = 1.0f, FName StartSelectName = NAME_None);
-
 	void PlayWeaponSound(USoundCue* SoundCue);
+
+	void SetWeaponState();
 
 	bool IsFire() const;
 
@@ -88,6 +89,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	class UStaticMeshComponent* Mesh;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	FVector SetWeaponLocation;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* ReloadAnim;
@@ -114,11 +118,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 	USoundCue* ReloadSound;
 
-	UPROPERTY(EditAnywhere, Category = "Weapon")
-	TSubclassOf<class AWeaponClip> ClipClass;
-
-	class AWeaponClip* Clip;
-
 	UPROPERTY(EditAnywhere, Category = "Weapon Type")
 	EWeaponType WeaponType;
 
@@ -133,9 +132,13 @@ protected:
 
 	FTimerHandle ReloadTimerHandle;
 
+	FTimerHandle FireTimerHandle;
+
 	int CurrentAmmo;
 
 	float NextInterval;
 
 	bool bReloading;
+
+	bool bFire;
 };

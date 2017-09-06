@@ -36,7 +36,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "Animation")
-	FRotator GetAimOffset(float AimPitch);
+	FRotator GetAimOffset(float AimPitch, float AimYaw);
 
 protected:
 
