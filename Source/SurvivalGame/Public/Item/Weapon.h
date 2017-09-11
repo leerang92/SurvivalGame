@@ -50,11 +50,9 @@ public:
 
 	void StopFire();
 
-	void StartReload();
-
-	virtual void StopReload();
-
 	virtual void OnReload();
+
+	virtual void FinishReload();
 
 	float SetAnimation(UAnimMontage* Animation, float InPlayRate = 1.0f, FName StartSelectName = NAME_None);
 
@@ -62,6 +60,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
+
+	FORCEINLINE UStaticMeshComponent* GetMesh() const { return Mesh; }
 
 protected:
 	// Called when the game starts or when spawned
@@ -135,8 +135,6 @@ protected:
 	FTimerHandle FireTimerHandle;
 
 	int CurrentAmmo;
-
-	float NextInterval;
 
 	bool bReloading;
 

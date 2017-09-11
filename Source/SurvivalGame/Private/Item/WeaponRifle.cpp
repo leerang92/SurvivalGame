@@ -7,11 +7,16 @@ void AWeaponRifle::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Clip = GetWorld()->SpawnActor<AWeaponClip>(ClipClass, Mesh->GetSocketLocation(TEXT("ClipSocket")), FRotator::ZeroRotator);
+	CreateClip();
 	if (Clip)
 	{
 		Clip->OnEquip(Mesh);
 	}
+}
+
+void AWeaponRifle::CreateClip(FName AttachPoint)
+{
+	Clip = GetWorld()->SpawnActor<AWeaponClip>(ClipClass, Mesh->GetSocketLocation(AttachPoint), FRotator::ZeroRotator);
 }
 
 void AWeaponRifle::OnReload()
@@ -21,5 +26,6 @@ void AWeaponRifle::OnReload()
 	if (Clip)
 	{
 		Clip->OnUnEquip();
+		Clip = nullptr;
 	}
 }

@@ -5,6 +5,9 @@
 #include "Components/ActorComponent.h"
 #include "Weapon.h"
 #include "WeaponType.h"
+#include "UIInventory.h"
+#include "UserWidget.h"
+#include "ItemInfo.h"
 #include "Inventory.generated.h"
 
 USTRUCT()
@@ -41,6 +44,8 @@ public:
 	// 인벤토리에 무기 추가
 	void AddWeapon(class AWeapon* NewWeapon);
 
+	void AddItem(FItemInformation NewItem);
+
 	// 무기 타입에 따른 장착 포인트 반환
 	FName GetWeaponType(const EWeaponSlot GetSlot) const;
 
@@ -54,6 +59,10 @@ public:
 	FORCEINLINE class AWeapon* GetCurrentWeapon() const { 
 		return CurrentWeapon; 
 	}
+
+	void CreateUI();
+
+	void SetInventoryUI(bool bShow);
 
 protected:
 	virtual void BeginPlay() override;
@@ -76,6 +85,12 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimMontage* EquipMontage;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<class UUserWidget> InvenClass;
+
+	UPROPERTY()
+	class UUIInventory* InvenUI;
 
 protected:
 	// 무기 배열

@@ -18,6 +18,10 @@ public:
 
 	virtual void BeginPlay() override;
 
+	void CreateClip(FName AttachPoint = "ClipSocket");
+
+	FORCEINLINE AWeaponClip* GetClip() const { return Clip; }
+
 protected:
 
 	virtual void OnReload() override;

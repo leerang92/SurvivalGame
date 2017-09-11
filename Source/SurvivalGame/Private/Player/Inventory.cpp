@@ -23,6 +23,28 @@ UInventory::UInventory()
 }
 
 
+void UInventory::CreateUI()
+{
+	if (InvenClass)
+	{
+		UUserWidget* Inventory = CreateWidget<UUserWidget>(GetWorld(), InvenClass);
+		Inventory->AddToViewport();
+
+		InvenUI = Cast<UUIInventory>(Inventory);
+		InvenUI->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void UInventory::SetInventoryUI(bool bShow)
+{
+	if (bShow)
+	{
+		InvenUI->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+		InvenUI->SetVisibility(ESlateVisibility::Hidden);
+}
+
 // Called when the game starts
 void UInventory::BeginPlay()
 {
@@ -68,6 +90,11 @@ void UInventory::AddWeapon(AWeapon * NewWeapon)
 			SetCurrentWeapon(WeaponList[0], CurrentWeapon);
 		}
 	}
+}
+
+void UInventory::AddItem(FItemInformation NewItem)
+{
+	InvenUI->AddSlotItem(NewItem);
 }
 
 void UInventory::SetCurrentWeapon(AWeapon * NewWeapon, AWeapon* LastWeapon)

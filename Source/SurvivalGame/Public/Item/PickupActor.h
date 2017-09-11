@@ -3,6 +3,7 @@
 #pragma once
 
 #include "UsableActor.h"
+#include "ItemInfo.h"
 #include "PickupActor.generated.h"
 
 UCLASS()
@@ -22,10 +23,10 @@ public:
 	void OnRespawn();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-
+	UPROPERTY(EditAnywhere, Category = "ItemInfo")
+	FItemInformation ItemInfo;
 
 };

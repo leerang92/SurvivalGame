@@ -21,7 +21,6 @@ AWeapon::AWeapon()
 	bFire = false;
 
 	FireInterval = 0.15f;
-	NextInterval = 0.0f;
 
 	Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
 	RootComponent = Capsule;
@@ -85,7 +84,7 @@ void AWeapon::OnEquip(EWeaponSlot Slot)
 	APlayerCharacter* PC = Cast<APlayerCharacter>(MyPawn);
 	if (PC)
 	{
-		FName AttachPoint = PC->Inventory->GetWeaponType(Slot);
+		FName AttachPoint = PC->InventoryComp->GetWeaponType(Slot);
 		Mesh->AttachToComponent(PC->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
 		Mesh->SetRelativeLocation(SetWeaponLocation);
 	}
@@ -137,13 +136,16 @@ void AWeapon::OnFire()
 
 void AWeapon::OnReload()
 {
-	bReloading = true;
-	CurrentState = EWeaponState::Reload;
-	// 재장전 애니메이션 재생 후 재장전 완료
-	const float Duration = SetAnimation(ReloadAnim);
-	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AWeapon::StopReload, Duration, false);
+	if (IsReload()) 
+	{
+		bReloading = true;
+		CurrentState = EWeaponState::Reload;
+		// 재장전 애니메이션 재생 후 재장전 완료
+		const float Duration = SetAnimation(ReloadAnim);
+		GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AWeapon::FinishReload, Duration, false);
 
-	PlayWeaponSound(ReloadSound);
+		PlayWeaponSound(ReloadSound);
+	}
 }
 
 void AWeapon::SetWeaponState()
@@ -172,15 +174,7 @@ void AWeapon::StopFire()
 	SetWeaponState();
 }
 
-void AWeapon::StartReload()
-{
-	if (CurrentAmmo < MaxAmmo)
-	{
-		OnReload();
-	}
-}
-
-void AWeapon::StopReload()
+void AWeapon::FinishReload()
 {
 	bReloading = false;
 	CurrentAmmo = MaxAmmo;
@@ -196,9 +190,9 @@ bool AWeapon::IsFire() const
 bool AWeapon::IsReload() const
 {
 	//bool bState = CurrentState == EWeaponState::Idle || CurrentState == EWeaponState::Fire;
-	const bool bAmmo = CurrentAmmo <= 0;
-	const bool bState = CurrentState == EWeaponState::Idle || CurrentState == EWeaponState::Fire;
-	return bAmmo && bState && !bReloading;
+	const bool bCurrentFire = CurrentState == EWeaponState::Fire && CurrentAmmo <= 0;
+	const bool bCurrentIdle = CurrentState == EWeaponState::Idle && CurrentAmmo < MaxAmmo;
+	return bCurrentFire || bCurrentIdle && !bReloading;
 }
 
 float AWeapon::SetAnimation(UAnimMontage * Animation, float InPlayRate, FName StartSelectName)

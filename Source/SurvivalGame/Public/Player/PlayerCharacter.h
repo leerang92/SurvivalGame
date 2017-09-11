@@ -28,9 +28,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	FORCEINLINE bool GetIsFire() const { 
-		if (Inventory->GetCurrentWeapon())
+		if (InventoryComp->GetCurrentWeapon())
 		{
-			return Inventory->CurrentWeapon->GetWeaponState();
+			return InventoryComp->CurrentWeapon->GetWeaponState();
 		}
 		return false;
 	}
@@ -51,7 +51,7 @@ protected:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
-	class UInventory* Inventory;
+	class UInventory* InventoryComp;
 
 	/* 카메라 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
@@ -66,6 +66,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Camera")
 	bool IsZoom;
+	bool IsInventory;
 
 protected:
 	// 현재 상태
@@ -101,6 +102,6 @@ private:
 
 	class AUsableActor* GetUseableItem();
 
-public:
-	
+	void ShowInventory();
+
 };

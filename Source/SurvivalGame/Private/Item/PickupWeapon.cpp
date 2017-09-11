@@ -28,7 +28,7 @@ void APickupWeapon::OnUsed(APawn * Owner)
 		const FVector SpawnLocation = MyPawn->GetActorLocation() + (MyPawn->GetActorForwardVector() * 10.0f);
 		AWeapon* NewWeapon = MyPawn->GetWorld()->SpawnActor<AWeapon>(WeaponClass, SpawnLocation, FRotator::ZeroRotator, SpawnParam);
 
-		MyPawn->Inventory->AddWeapon(NewWeapon);
+		MyPawn->InventoryComp->AddWeapon(NewWeapon);
 		//MyPawn->Inventory->AddWeapon(WeaponClass->GetDefaultObject<AWeapon>());
 	}
 }

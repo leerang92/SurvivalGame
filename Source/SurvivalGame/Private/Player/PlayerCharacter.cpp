@@ -13,6 +13,7 @@ APlayerCharacter::APlayerCharacter()
 
 	bHasFocus = true;
 	IsZoom = false;
+	IsInventory = false;
 
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
@@ -31,7 +32,7 @@ APlayerCharacter::APlayerCharacter()
 	FollowCamera->SetupAttachment(CameraArm, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
-	Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
+	InventoryComp = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
 	
 }
 
@@ -40,7 +41,8 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Inventory->SetOwnerPawn(this);
+	InventoryComp->SetOwnerPawn(this);
+	InventoryComp->CreateUI();
 
 	PickupTooltip = CreateWidget<UUserWidget>(GetWorld(), PickupUI);
 	PickupTooltip->AddToViewport();
@@ -109,6 +111,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	/* 무기 교체 */
 	InputComponent->BindAction("SwapWeapon1", IE_Pressed, this, &APlayerCharacter::SwapWeapon<0>);
 	InputComponent->BindAction("SwapWeapon2", IE_Pressed, this, &APlayerCharacter::SwapWeapon<1>);
+
+	InputComponent->BindAction("Inventory", IE_Pressed, this, &APlayerCharacter::ShowInventory);
 }
 
 FRotator APlayerCharacter::GetAimOffset(float AimPitch, float AimYaw)
@@ -126,7 +130,7 @@ FRotator APlayerCharacter::GetAimOffset(float AimPitch, float AimYaw)
 
 void APlayerCharacter::ZoomIn()
 {
-	if (Inventory->GetCurrentWeapon()) 
+	if (InventoryComp->GetCurrentWeapon()) 
 	{
 		IsZoom = true;
 		FollowCamera->FieldOfView = 60.0f;
@@ -208,23 +212,23 @@ void APlayerCharacter::StartCrouch()
 
 void APlayerCharacter::StartFire()
 {
-	if (Inventory->GetCurrentWeapon() != nullptr) 
+	if (InventoryComp->GetCurrentWeapon() != nullptr) 
 	{
-		Inventory->GetCurrentWeapon()->StartFire();
+		InventoryComp->GetCurrentWeapon()->StartFire();
 	}
 }
 
 void APlayerCharacter::StopFire()
 {
-	if (Inventory->GetCurrentWeapon() != nullptr)
-		Inventory->GetCurrentWeapon()->StopFire();
+	if (InventoryComp->GetCurrentWeapon() != nullptr)
+		InventoryComp->GetCurrentWeapon()->StopFire();
 }
 
 void APlayerCharacter::StartReload()
 {
-	if (Inventory->GetCurrentWeapon() != nullptr)
+	if (InventoryComp->GetCurrentWeapon() != nullptr)
 	{
-		Inventory->GetCurrentWeapon()->StartReload();
+		InventoryComp->GetCurrentWeapon()->OnReload();
 	}
 }
 
@@ -238,13 +242,13 @@ void APlayerCharacter::PickupItem()
 
 void APlayerCharacter::DropItem()
 {
-	Inventory->DropItem();
+	InventoryComp->DropItem();
 }
 
 template<int Value>
 void APlayerCharacter::SwapWeapon()
 {
-	Inventory->SwapWeapon(Value);
+	InventoryComp->SwapWeapon(Value);
 }
 
 AUsableActor * APlayerCharacter::GetUseableItem()
@@ -272,5 +276,19 @@ AUsableActor * APlayerCharacter::GetUseableItem()
 	GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECC_Visibility, TraceParam);
 
 	return Cast<AUsableActor>(Hit.GetActor());
+}
+
+void APlayerCharacter::ShowInventory()
+{
+	if (!IsInventory)
+	{
+		InventoryComp->SetInventoryUI(true);
+		IsInventory = true;
+	}
+	else
+	{
+		InventoryComp->SetInventoryUI(false);
+		IsInventory = false;
+	}
 }
 

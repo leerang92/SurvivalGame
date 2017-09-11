@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SurvivalGame.h"
+#include "PlayerCharacter.h"
 #include "PickupActor.h"
 
 
@@ -28,6 +29,12 @@ void APickupActor::Tick(float DeltaTime)
 
 void APickupActor::OnUsed(APawn * OwnerPawn)
 {
+	APlayerCharacter* PC = Cast<APlayerCharacter>(OwnerPawn);
+	if (PC)
+	{
+		PC->InventoryComp->AddItem(ItemInfo);
+		this->Destroy();
+	}
 }
 
 void APickupActor::OnRespawn()
