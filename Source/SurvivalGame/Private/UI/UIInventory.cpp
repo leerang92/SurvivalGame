@@ -3,18 +3,26 @@
 #include "SurvivalGame.h"
 #include "UIInventory.h"
 
-
 void UUIInventory::NativeConstruct()
 {
 	Super::NativeConstruct();
+	bCanEverTick = true;
 
-	CreateItemSlot();
+	CreateInventory();
 }
 
-void UUIInventory::CreateItemSlot()
+void UUIInventory::NativeTick(const FGeometry & MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	UE_LOG(LogClass, Warning, TEXT("!!!!"));
+}
+
+void UUIInventory::CreateInventory()
 {
 	if (!SlotClass)
 	{
+		UE_LOG(LogClass, Warning, TEXT("Slot Class 없음"));
 		return;
 	}
 
@@ -31,19 +39,16 @@ void UUIInventory::CreateItemSlot()
 	}
 }
 
-void UUIInventory::AddGridSlot(UUniformGridSlot * Grid)
-{
-	Grid->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
-	Grid->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
-	Grid->SetColumn(Column);
-	Grid->SetRow(Row);
-	
-	IncrementSlotMatrix();
-}
-
 void UUIInventory::AddSlotItem(FItemInformation Info)
 {
+	if (Info.Image == nullptr)
+	{
+		UE_LOG(LogClass, Warning, TEXT("잘못된 아이템 정보"));
+		return;
+	}
+
 	bool IsAdd = false;
+	// 중복 여부 검사 후 중복 시 갯수만 증가
 	for (int32 i = 0; i < SlotList.Num(); ++i)
 	{
 		if (SlotList[i]->ItemInfo.Name == Info.Name)
@@ -54,11 +59,12 @@ void UUIInventory::AddSlotItem(FItemInformation Info)
 			break;
 		}
 	}
+	// 중복된 아이템 없을 시 빈슬롯에 아이템 추가
 	if (!IsAdd)
 	{
 		for (int32 i = 0; i < SlotList.Num(); ++i)
 		{
-			if (SlotList[i]->GetSlotEmpty())
+			if (SlotList[i]->IsEmpty())
 			{
 				SlotList[i]->SetItemInfo(Info);
 				break;
@@ -67,9 +73,18 @@ void UUIInventory::AddSlotItem(FItemInformation Info)
 	}
 }
 
+void UUIInventory::AddGridSlot(UUniformGridSlot * Grid)
+{
+	Grid->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
+	Grid->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
+	Grid->SetColumn(Column);
+	Grid->SetRow(Row);
+	
+	IncrementSlotMatrix();
+}
+
 void UUIInventory::IncrementSlotMatrix()
 {
-
 	Column++;
 	if (Column >= ColumnLength)
 	{

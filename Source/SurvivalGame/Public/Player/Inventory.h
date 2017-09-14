@@ -32,11 +32,9 @@ class SURVIVALGAME_API UInventory : public UActorComponent
 	GENERATED_BODY()
 
 public:	
+
 	// Sets default values for this component's properties
 	UInventory();
-
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	// 플레이어 Pawn 설정
 	void SetOwnerPawn(APawn* OwnerPawn);
@@ -65,8 +63,6 @@ public:
 	void SetInventoryUI(bool bShow);
 
 protected:
-	virtual void BeginPlay() override;
-
 	// 주무기 장착
 	void SetCurrentWeapon(AWeapon* NewWeapon, AWeapon* LastWeapon);
 

@@ -280,15 +280,18 @@ AUsableActor * APlayerCharacter::GetUseableItem()
 
 void APlayerCharacter::ShowInventory()
 {
+	APlayerController* MyControlloer = GetWorld()->GetFirstPlayerController();
 	if (!IsInventory)
 	{
 		InventoryComp->SetInventoryUI(true);
 		IsInventory = true;
+		MyControlloer->bShowMouseCursor = true;
 	}
 	else
 	{
 		InventoryComp->SetInventoryUI(false);
 		IsInventory = false;
+		MyControlloer->bShowMouseCursor = false;
 	}
 }
 

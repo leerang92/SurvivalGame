@@ -18,8 +18,6 @@ UInventory::UInventory()
 	AttachHand = TEXT("Hand_r");
 	AttachPrimary = TEXT("Primary");
 	AttachSecondery = TEXT("Secondery");
-
-	// ...
 }
 
 
@@ -27,6 +25,7 @@ void UInventory::CreateUI()
 {
 	if (InvenClass)
 	{
+		/* 인벤토리 UI 생성 및 감추기 */
 		UUserWidget* Inventory = CreateWidget<UUserWidget>(GetWorld(), InvenClass);
 		Inventory->AddToViewport();
 
@@ -41,25 +40,10 @@ void UInventory::SetInventoryUI(bool bShow)
 	{
 		InvenUI->SetVisibility(ESlateVisibility::Visible);
 	}
-	else
+	else 
+	{
 		InvenUI->SetVisibility(ESlateVisibility::Hidden);
-}
-
-// Called when the game starts
-void UInventory::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-// Called every frame
-void UInventory::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	}
 }
 
 void UInventory::SetOwnerPawn(APawn * OwnerPawn)

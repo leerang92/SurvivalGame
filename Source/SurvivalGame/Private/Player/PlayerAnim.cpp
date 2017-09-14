@@ -26,7 +26,7 @@ void UPlayerAnim::AnimNotify_AttachClip(UAnimNotify * Notify)
 	if (PC)
 	{
 		AWeaponRifle* Weapon = Cast<AWeaponRifle>(PC->InventoryComp->GetCurrentWeapon());
-		if (Weapon)
+		if (Weapon && Weapon->GetClip())
 		{
 			Weapon->GetClip()->OnEquip(Weapon->GetMesh());
 		}

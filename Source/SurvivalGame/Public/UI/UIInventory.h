@@ -22,14 +22,18 @@ public:
 
 	virtual void NativeConstruct() override;
 
+	virtual void NativeTick(const FGeometry & MyGeometry, float InDeltaTime) override;
+
 	void AddSlotItem(FItemInformation Info);
 
 protected:
 
-	void CreateItemSlot();
+	void CreateInventory();
 
+	// UniformGrid에 아이템 슬롯 지정하여 정렬
 	void AddGridSlot(UUniformGridSlot* Grid);
 
+	// 슬롯 행렬 증가
 	void IncrementSlotMatrix();
 
 public:
