@@ -8,6 +8,7 @@
 #include "UIInventory.h"
 #include "UserWidget.h"
 #include "ItemInfo.h"
+#include "MainHUD.h"
 #include "Inventory.generated.h"
 
 USTRUCT()
@@ -87,6 +88,12 @@ public:
 
 	UPROPERTY()
 	class UUIInventory* InvenUI;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<class UUserWidget> HUDClass;
+
+	UPROPERTY()
+	class UMainHUD* MainHUD;
 
 protected:
 	// 무기 배열

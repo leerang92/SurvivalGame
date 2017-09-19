@@ -6,16 +6,11 @@
 void UUIInventory::NativeConstruct()
 {
 	Super::NativeConstruct();
-	bCanEverTick = true;
+
+	PrevMouseX = 0.0f;
+	PrevMouseY = 0.0f;
 
 	CreateInventory();
-}
-
-void UUIInventory::NativeTick(const FGeometry & MyGeometry, float InDeltaTime)
-{
-	Super::NativeTick(MyGeometry, InDeltaTime);
-
-	UE_LOG(LogClass, Warning, TEXT("!!!!"));
 }
 
 void UUIInventory::CreateInventory()
@@ -35,6 +30,7 @@ void UUIInventory::CreateInventory()
 
 			UItemSlot* Slot = Cast<UItemSlot>(Widget);
 			SlotList.Add(Slot);
+			Slot->SetSlotIndex(i);
 		}
 	}
 }
@@ -51,10 +47,11 @@ void UUIInventory::AddSlotItem(FItemInformation Info)
 	// 중복 여부 검사 후 중복 시 갯수만 증가
 	for (int32 i = 0; i < SlotList.Num(); ++i)
 	{
-		if (SlotList[i]->ItemInfo.Name == Info.Name)
+		if (SlotList[i]->GetItemInfo().Name == Info.Name)
 		{
-			SlotList[i]->ItemInfo.Amount += Info.Amount;
-			SlotList[i]->SetAmount();
+			FItemInformation NewInfo = SlotList[i]->GetItemInfo();
+			NewInfo.Amount += Info.Amount;
+			SlotList[i]->SetItemInfo(NewInfo);
 			IsAdd = true;
 			break;
 		}
@@ -71,6 +68,17 @@ void UUIInventory::AddSlotItem(FItemInformation Info)
 			}
 		}
 	}
+}
+
+void UUIInventory::ChangeSlot(int ToIndex, int FromIndex)
+{
+	FItemInformation ToItem;
+	ToItem = SlotList[ToIndex]->GetItemInfo();
+	SlotList[FromIndex]->SetItemInfo(ToItem);
+
+	// 이전 슬롯 초기화
+	ToItem = {};
+	SlotList[ToIndex]->SetItemInfo(ToItem);
 }
 
 void UUIInventory::AddGridSlot(UUniformGridSlot * Grid)

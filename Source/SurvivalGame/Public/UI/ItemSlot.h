@@ -2,44 +2,24 @@
 
 #pragma once
 
-#include "Blueprint/UserWidget.h"
-#include "ItemInfo.h"
-#include "Button.h"
-#include "TextBlock.h"
-#include "SlateBrush.h"
+//#include "Blueprint/UserWidget.h"
+#include "UISlot.h"
+//#include "ItemInfo.h"
+//#include "Button.h"
+//#include "TextBlock.h"
+//#include "SlateBrush.h"
+//#include "Image.h"
 #include "ItemSlot.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SURVIVALGAME_API UItemSlot : public UUserWidget
+class SURVIVALGAME_API UItemSlot : public UUISlot
 {
 	GENERATED_BODY()
 		
 public:
-	virtual void NativeConstruct() override;
-
-	void SetItemInfo(FItemInformation Info);
-
-	void SetAmount();
-
-	FORCEINLINE bool IsEmpty() const {
-		return ItemInfo.Image == nullptr;
-	}
-
-protected:
-	void SetSlotStyle(UTexture2D* ItemImage);
-
-	UFUNCTION()
-	void OnClick();
-	
-public:
-	FItemInformation ItemInfo;
-
-	UPROPERTY()
-	UButton* SlotButton;
-
-	UPROPERTY()
-	UTextBlock* AmountText;
+	//UFUNCTION(BlueprintCallable, Category = "Slot")
+	virtual void ChangeSlot(int ToIndex) override;
 };

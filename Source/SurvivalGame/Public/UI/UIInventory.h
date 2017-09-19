@@ -22,9 +22,9 @@ public:
 
 	virtual void NativeConstruct() override;
 
-	virtual void NativeTick(const FGeometry & MyGeometry, float InDeltaTime) override;
-
 	void AddSlotItem(FItemInformation Info);
+
+	void ChangeSlot(int ToIndex, int FromIndex);
 
 protected:
 
@@ -55,5 +55,10 @@ private:
 
 	int Column;
 	int Row;
+
+	bool bDrag : 1;
+
+	bool bPosition : 1;
 	
+	float PrevMouseX, PrevMouseY;
 };

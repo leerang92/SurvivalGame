@@ -47,6 +47,9 @@ void APlayerCharacter::BeginPlay()
 	PickupTooltip = CreateWidget<UUserWidget>(GetWorld(), PickupUI);
 	PickupTooltip->AddToViewport();
 	PickupTooltip->SetVisibility(ESlateVisibility::Hidden);
+
+	APlayerController* MyControlloer = GetWorld()->GetFirstPlayerController();
+	MyControlloer->bShowMouseCursor = false;
 }
 
 // Called every frame

@@ -23,14 +23,26 @@ struct FItemInformation
 	UPROPERTY(EditAnywhere, Category = "ItemInfo")
 	TSubclassOf<class AUsableActor> ItemClass;
 
+
 public:
 
-	FItemInformation() :
-		Name(TEXT("No Name")),
-		Amount(1),
-		Image(nullptr),
-		ItemClass(nullptr)
+	FItemInformation() 
+		: Name(TEXT("No Name"))
+		, Amount(1)
+		, Image(nullptr)
+		, ItemClass(nullptr)
 	{}
-
 };
+
+UENUM(BlueprintType)
+namespace EItemType
+{
+	enum Type
+	{
+		None,
+		Weapon,
+		Helmet,
+	};
+}
+
 

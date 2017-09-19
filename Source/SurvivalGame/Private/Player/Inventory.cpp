@@ -23,14 +23,17 @@ UInventory::UInventory()
 
 void UInventory::CreateUI()
 {
-	if (InvenClass)
+	if (HUDClass)
 	{
-		/* 인벤토리 UI 생성 및 감추기 */
-		UUserWidget* Inventory = CreateWidget<UUserWidget>(GetWorld(), InvenClass);
-		Inventory->AddToViewport();
+		UUserWidget* HUD = CreateWidget<UUserWidget>(GetWorld(), HUDClass);
+		HUD->AddToViewport();
 
-		InvenUI = Cast<UUIInventory>(Inventory);
-		InvenUI->SetVisibility(ESlateVisibility::Hidden);
+		MainHUD = Cast<UMainHUD>(HUD);
+
+		APlayerController* MyControlloer = GetWorld()->GetFirstPlayerController();
+
+		MyControlloer->bShowMouseCursor = true;
+		
 	}
 }
 
@@ -38,11 +41,11 @@ void UInventory::SetInventoryUI(bool bShow)
 {
 	if (bShow)
 	{
-		InvenUI->SetVisibility(ESlateVisibility::Visible);
+		MainHUD->SetInventory(true);
 	}
 	else 
 	{
-		InvenUI->SetVisibility(ESlateVisibility::Hidden);
+		MainHUD->SetInventory(false);
 	}
 }
 
@@ -78,7 +81,7 @@ void UInventory::AddWeapon(AWeapon * NewWeapon)
 
 void UInventory::AddItem(FItemInformation NewItem)
 {
-	InvenUI->AddSlotItem(NewItem);
+	MainHUD->Inventory->AddSlotItem(NewItem);
 }
 
 void UInventory::SetCurrentWeapon(AWeapon * NewWeapon, AWeapon* LastWeapon)
