@@ -14,6 +14,7 @@ APlayerCharacter::APlayerCharacter()
 	bHasFocus = true;
 	IsZoom = false;
 	IsInventory = false;
+	IsEquip = false;
 
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
@@ -42,14 +43,17 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	InventoryComp->SetOwnerPawn(this);
-	InventoryComp->CreateUI();
 
-	PickupTooltip = CreateWidget<UUserWidget>(GetWorld(), PickupUI);
-	PickupTooltip->AddToViewport();
-	PickupTooltip->SetVisibility(ESlateVisibility::Hidden);
+	//PickupTooltip = CreateWidget<UUserWidget>(GetWorld(), PickupUI);
+	//PickupTooltip->AddToViewport();
+	//PickupTooltip->SetVisibility(ESlateVisibility::Hidden);
 
-	APlayerController* MyControlloer = GetWorld()->GetFirstPlayerController();
-	MyControlloer->bShowMouseCursor = false;
+	if (MainHUDClass)
+	{
+		UUserWidget* HUD = CreateWidget<UUserWidget>(GetWorld(), MainHUDClass);
+		HUD->AddToViewport();
+		MainHUD = Cast<UMainHUD>(HUD);
+	}
 }
 
 // Called every frame
@@ -65,7 +69,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 			if (FocusUsableActor)
 			{
 				FocusUsableActor->OnEndFocus();
-				PickupTooltip->SetVisibility(ESlateVisibility::Hidden);
+				MainHUD->ShowPickupUI(false);
 			}
 			bHasFocus = true;
 		}
@@ -76,7 +80,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		{
 			if(bHasFocus)
 			FocusUsableActor->OnBeginFocus();
-			PickupTooltip->SetVisibility(ESlateVisibility::Visible);
+			MainHUD->ShowPickupUI(true);
 			bHasFocus = false;
 		}
 	}
@@ -116,6 +120,16 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	InputComponent->BindAction("SwapWeapon2", IE_Pressed, this, &APlayerCharacter::SwapWeapon<1>);
 
 	InputComponent->BindAction("Inventory", IE_Pressed, this, &APlayerCharacter::ShowInventory);
+	InputComponent->BindAction("Equipment", IE_Pressed, this, &APlayerCharacter::ShowEquipment);
+}
+
+bool APlayerCharacter::GetIsFire() const
+{
+	if (InventoryComp->GetCurrentWeapon())
+	{
+		return InventoryComp->CurrentWeapon->GetWeaponState();
+	}
+	return false;
 }
 
 FRotator APlayerCharacter::GetAimOffset(float AimPitch, float AimYaw)
@@ -272,7 +286,6 @@ AUsableActor * APlayerCharacter::GetUseableItem()
 	FCollisionQueryParams TraceParam(TEXT("TraceUsableActor"), true, this);
 	TraceParam.bTraceAsyncScene = true;
 	TraceParam.bReturnPhysicalMaterial = false;
-
 	TraceParam.bTraceComplex = true;
 
 	FHitResult Hit(ForceInit);
@@ -286,15 +299,32 @@ void APlayerCharacter::ShowInventory()
 	APlayerController* MyControlloer = GetWorld()->GetFirstPlayerController();
 	if (!IsInventory)
 	{
-		InventoryComp->SetInventoryUI(true);
-		IsInventory = true;
+		MainHUD->SetInventory(true);
 		MyControlloer->bShowMouseCursor = true;
+		IsInventory = true;
 	}
 	else
 	{
-		InventoryComp->SetInventoryUI(false);
-		IsInventory = false;
+		MainHUD->SetInventory(false);
 		MyControlloer->bShowMouseCursor = false;
+		IsInventory = false;
+	}
+}
+
+void APlayerCharacter::ShowEquipment()
+{
+	APlayerController* MyControlloer = GetWorld()->GetFirstPlayerController();
+	if (!IsEquip)
+	{
+		MainHUD->SetEquipment(true);
+		MyControlloer->bShowMouseCursor = true;
+		IsEquip = true;
+	}
+	else
+	{
+		MainHUD->SetEquipment(false);
+		MyControlloer->bShowMouseCursor = false;
+		IsEquip = false;
 	}
 }
 

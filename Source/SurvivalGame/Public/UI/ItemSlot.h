@@ -2,13 +2,7 @@
 
 #pragma once
 
-//#include "Blueprint/UserWidget.h"
 #include "UISlot.h"
-//#include "ItemInfo.h"
-//#include "Button.h"
-//#include "TextBlock.h"
-//#include "SlateBrush.h"
-//#include "Image.h"
 #include "ItemSlot.generated.h"
 
 /**

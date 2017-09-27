@@ -7,6 +7,7 @@
 #include "UsableActor.h"
 #include "UserWidget.h"
 #include "Inventory.h"
+#include "MainHUD.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -27,13 +28,7 @@ public:
 	EPlayerState GetPlayerState() const { return CurrentState; }
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	FORCEINLINE bool GetIsFire() const { 
-		if (InventoryComp->GetCurrentWeapon())
-		{
-			return InventoryComp->CurrentWeapon->GetWeaponState();
-		}
-		return false;
-	}
+	bool GetIsFire() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	FRotator GetAimOffset(float AimPitch, float AimYaw);
@@ -66,7 +61,14 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Camera")
 	bool IsZoom;
+
 	bool IsInventory;
+	bool IsEquip;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UMG")
+	TSubclassOf<class UUserWidget> MainHUDClass;
+
+	class UMainHUD* MainHUD;
 
 protected:
 	// 현재 상태
@@ -103,5 +105,7 @@ private:
 	class AUsableActor* GetUseableItem();
 
 	void ShowInventory();
+
+	void ShowEquipment();
 
 };

@@ -32,3 +32,12 @@ void UPlayerAnim::AnimNotify_AttachClip(UAnimNotify * Notify)
 		}
 	}
 }
+
+void UPlayerAnim::AnimNotify_Equip(UAnimNotify * Notify)
+{
+	APlayerCharacter* PC = Cast<APlayerCharacter>(TryGetPawnOwner());
+	if (PC)
+	{
+		PC->InventoryComp->SetCurrentWeapon(PC->InventoryComp->GetSwapWeapon(), PC->InventoryComp->GetCurrentWeapon());
+	}
+}

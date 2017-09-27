@@ -29,6 +29,12 @@ public:
 
 	void SetSlotIndex(int Index);
 
+	UFUNCTION(BlueprintCallable, Category = "Slot")
+	void RemoveSlot(int Index);
+
+	UFUNCTION(BlueprintCallable, Category = "Slot")
+	inline UClass* GetItemClass() { return ItemInfo.ItemClass; }
+
 	FORCEINLINE FItemInformation GetItemInfo() const { return ItemInfo; }
 
 	UFUNCTION(BlueprintCallable, Category = "Slot")

@@ -26,6 +26,8 @@ public:
 
 	void ChangeSlot(int ToIndex, int FromIndex);
 
+	void ConstructSlot(int Index);
+
 protected:
 
 	void CreateInventory();

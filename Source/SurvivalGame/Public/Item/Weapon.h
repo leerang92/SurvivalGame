@@ -96,6 +96,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* ReloadAnim;
 
+	UPROPERTY(EditAnywhere, Category = "Image")
+	UTexture2D* WeaponImage;
+
 	// 드랍 무기 아이템 클래스
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<class APickupWeapon> PickupWeaponClass;

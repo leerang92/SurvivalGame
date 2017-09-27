@@ -81,6 +81,11 @@ void UUIInventory::ChangeSlot(int ToIndex, int FromIndex)
 	SlotList[ToIndex]->SetItemInfo(ToItem);
 }
 
+void UUIInventory::ConstructSlot(int Index)
+{
+	SlotList[Index]->SetItemInfo({});
+}
+
 void UUIInventory::AddGridSlot(UUniformGridSlot * Grid)
 {
 	Grid->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);

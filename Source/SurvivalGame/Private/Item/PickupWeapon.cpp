@@ -25,10 +25,8 @@ void APickupWeapon::OnUsed(APawn * Owner)
 
 		FActorSpawnParameters SpawnParam;
 		SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		const FVector SpawnLocation = MyPawn->GetActorLocation() + (MyPawn->GetActorForwardVector() * 10.0f);
-		AWeapon* NewWeapon = MyPawn->GetWorld()->SpawnActor<AWeapon>(WeaponClass, SpawnLocation, FRotator::ZeroRotator, SpawnParam);
+		AWeapon* NewWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParam);
 
 		MyPawn->InventoryComp->AddWeapon(NewWeapon);
-		//MyPawn->Inventory->AddWeapon(WeaponClass->GetDefaultObject<AWeapon>());
 	}
 }

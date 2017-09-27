@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SurvivalGame.h"
+#include "PlayerCharacter.h"
 #include "UISlot.h"
 
 void UUISlot::SetItemInfo(FItemInformation Info)
@@ -41,4 +42,13 @@ void UUISlot::ChangeSlot(int ToIndex)
 void UUISlot::SetSlotIndex(int Index)
 {
 	SlotIndex = Index;
+}
+
+void UUISlot::RemoveSlot(int Index)
+{
+	APlayerCharacter* PC = Cast<APlayerCharacter>(GetOwningPlayerPawn());
+	if (PC)
+	{
+		PC->MainHUD->Inventory->ConstructSlot(Index);
+	}
 }

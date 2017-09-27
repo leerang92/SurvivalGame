@@ -20,35 +20,6 @@ UInventory::UInventory()
 	AttachSecondery = TEXT("Secondery");
 }
 
-
-void UInventory::CreateUI()
-{
-	if (HUDClass)
-	{
-		UUserWidget* HUD = CreateWidget<UUserWidget>(GetWorld(), HUDClass);
-		HUD->AddToViewport();
-
-		MainHUD = Cast<UMainHUD>(HUD);
-
-		APlayerController* MyControlloer = GetWorld()->GetFirstPlayerController();
-
-		MyControlloer->bShowMouseCursor = true;
-		
-	}
-}
-
-void UInventory::SetInventoryUI(bool bShow)
-{
-	if (bShow)
-	{
-		MainHUD->SetInventory(true);
-	}
-	else 
-	{
-		MainHUD->SetInventory(false);
-	}
-}
-
 void UInventory::SetOwnerPawn(APawn * OwnerPawn)
 {
 	MyPawn = OwnerPawn;
@@ -56,11 +27,11 @@ void UInventory::SetOwnerPawn(APawn * OwnerPawn)
 
 void UInventory::SwapWeapon(const int Index)
 {
-	if (WeaponList.Num() > Index)
+	if (IsSwapWeapon(Index))
 	{
+		SwapIndex = Index;
 		const float Duration = CurrentWeapon->SetAnimation(EquipMontage);
 		GetWorld()->GetTimerManager().SetTimer(SwapTimerHandle, this, &UInventory::FinishSwapWeapon, Duration, false);
-		SetCurrentWeapon(WeaponList[Index], CurrentWeapon);
 	}
 }
 
@@ -70,6 +41,9 @@ void UInventory::AddWeapon(AWeapon * NewWeapon)
 	{
 		WeaponList.Add(NewWeapon);
 		NewWeapon->AttachToWeapon(MyPawn);
+
+		APlayerCharacter* PC = Cast<APlayerCharacter>(MyPawn);
+		PC->MainHUD->Equipment->SetWeaponSlot(NewWeapon->WeaponImage);
 
 		//처음 무기 습득 시
 		if (WeaponList.Num() > 0 && CurrentWeapon == nullptr)
@@ -81,7 +55,8 @@ void UInventory::AddWeapon(AWeapon * NewWeapon)
 
 void UInventory::AddItem(FItemInformation NewItem)
 {
-	MainHUD->Inventory->AddSlotItem(NewItem);
+	APlayerCharacter* PC = Cast<APlayerCharacter>(MyPawn);
+	PC->MainHUD->Inventory->AddSlotItem(NewItem);
 }
 
 void UInventory::SetCurrentWeapon(AWeapon * NewWeapon, AWeapon* LastWeapon)
@@ -149,6 +124,12 @@ void UInventory::RemoveWeapon()
 	}
 	CurrentWeapon->Destroy();
 	CurrentWeapon = nullptr;
+}
+
+bool UInventory::IsSwapWeapon(int Index) const
+{
+	// 현재 무기와 바꿀 무기가 다를 때 True
+	return WeaponList[Index] != CurrentWeapon;
 }
 
 FName UInventory::GetWeaponType(const EWeaponSlot GetSlot) const

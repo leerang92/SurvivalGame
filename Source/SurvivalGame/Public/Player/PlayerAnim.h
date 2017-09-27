@@ -22,4 +22,7 @@ public:
 	
 	UFUNCTION()
 	void AnimNotify_AttachClip(UAnimNotify* Notify);
+
+	UFUNCTION()
+	void AnimNotify_Equip(UAnimNotify* Notify);
 };

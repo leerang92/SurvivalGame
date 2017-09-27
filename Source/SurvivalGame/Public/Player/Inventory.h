@@ -5,10 +5,7 @@
 #include "Components/ActorComponent.h"
 #include "Weapon.h"
 #include "WeaponType.h"
-#include "UIInventory.h"
-#include "UserWidget.h"
 #include "ItemInfo.h"
-#include "MainHUD.h"
 #include "Inventory.generated.h"
 
 USTRUCT()
@@ -51,26 +48,28 @@ public:
 	// 무기 버리기
 	void DropItem();
 
+	// 주무기 장착
+	void SetCurrentWeapon(AWeapon* NewWeapon, AWeapon* LastWeapon);
+
 	// 무기 교체
 	void SwapWeapon(const int Index);
+
+	FORCEINLINE class AWeapon* GetSwapWeapon() const {
+		return WeaponList[SwapIndex];
+	}
 	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	FORCEINLINE class AWeapon* GetCurrentWeapon() const { 
 		return CurrentWeapon; 
 	}
 
-	void CreateUI();
-
-	void SetInventoryUI(bool bShow);
-
 protected:
-	// 주무기 장착
-	void SetCurrentWeapon(AWeapon* NewWeapon, AWeapon* LastWeapon);
-
 	void FinishSwapWeapon();
 
 	// 무기 배열에서 버린 무기 데이터 삭제
 	void RemoveWeapon();
+
+	bool IsSwapWeapon(int Index) const;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Slot")
@@ -82,18 +81,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimMontage* EquipMontage;
-
-	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<class UUserWidget> InvenClass;
-
-	UPROPERTY()
-	class UUIInventory* InvenUI;
-
-	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<class UUserWidget> HUDClass;
-
-	UPROPERTY()
-	class UMainHUD* MainHUD;
 
 protected:
 	// 무기 배열
@@ -114,4 +101,5 @@ private:
 	FName AttachPrimary;
 	FName AttachSecondery;
 
+	int SwapIndex;
 };
