@@ -8,6 +8,7 @@
 #include "UserWidget.h"
 #include "Inventory.h"
 #include "MainHUD.h"
+#include "EquipActor.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -69,6 +70,12 @@ public:
 	TSubclassOf<class UUserWidget> MainHUDClass;
 
 	class UMainHUD* MainHUD;
+
+	UPROPERTY(EditAnywhere, Category = "Equip Character")
+	TSubclassOf<class AActor> EquipCharacterClass;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Equip Character")
+	class AEquipActor* EquipCharacter;
 
 protected:
 	// 현재 상태

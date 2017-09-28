@@ -174,6 +174,11 @@ void AWeapon::StopFire()
 	SetWeaponState();
 }
 
+void AWeapon::SetState(EWeaponState State)
+{
+	CurrentState = State;
+}
+
 void AWeapon::FinishReload()
 {
 	bReloading = false;

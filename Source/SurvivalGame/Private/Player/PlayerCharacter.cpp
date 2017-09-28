@@ -44,15 +44,18 @@ void APlayerCharacter::BeginPlay()
 
 	InventoryComp->SetOwnerPawn(this);
 
-	//PickupTooltip = CreateWidget<UUserWidget>(GetWorld(), PickupUI);
-	//PickupTooltip->AddToViewport();
-	//PickupTooltip->SetVisibility(ESlateVisibility::Hidden);
-
 	if (MainHUDClass)
 	{
 		UUserWidget* HUD = CreateWidget<UUserWidget>(GetWorld(), MainHUDClass);
 		HUD->AddToViewport();
 		MainHUD = Cast<UMainHUD>(HUD);
+	}
+
+	if (EquipCharacterClass)
+	{
+		AActor* NewActor = GetWorld()->SpawnActor<AActor>(EquipCharacterClass,
+			FVector(7464040.0f, 2747420.0f, 307670.0f), FRotator::ZeroRotator);
+		EquipCharacter = Cast<AEquipActor>(NewActor);
 	}
 }
 

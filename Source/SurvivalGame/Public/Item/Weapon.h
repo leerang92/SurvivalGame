@@ -16,7 +16,8 @@ enum class EWeaponState
 	Idle,
 	Fire,
 	Equip,
-	Reload
+	Reload,
+	Swap,
 };
 
 UENUM(BlueprintType)
@@ -49,6 +50,8 @@ public:
 	void StartFire();
 
 	void StopFire();
+
+	void SetState(EWeaponState State);
 
 	virtual void OnReload();
 

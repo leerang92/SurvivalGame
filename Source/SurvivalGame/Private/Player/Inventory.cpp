@@ -31,6 +31,7 @@ void UInventory::SwapWeapon(const int Index)
 	{
 		SwapIndex = Index;
 		const float Duration = CurrentWeapon->SetAnimation(EquipMontage);
+		CurrentWeapon->SetState(EWeaponState::Swap);
 		GetWorld()->GetTimerManager().SetTimer(SwapTimerHandle, this, &UInventory::FinishSwapWeapon, Duration, false);
 	}
 }
@@ -42,13 +43,17 @@ void UInventory::AddWeapon(AWeapon * NewWeapon)
 		WeaponList.Add(NewWeapon);
 		NewWeapon->AttachToWeapon(MyPawn);
 
-		APlayerCharacter* PC = Cast<APlayerCharacter>(MyPawn);
-		PC->MainHUD->Equipment->SetWeaponSlot(NewWeapon->WeaponImage);
-
 		//처음 무기 습득 시
 		if (WeaponList.Num() > 0 && CurrentWeapon == nullptr)
 		{
 			SetCurrentWeapon(WeaponList[0], CurrentWeapon);
+		}
+
+		APlayerCharacter* PC = Cast<APlayerCharacter>(MyPawn);
+		if (PC)
+		{
+			PC->MainHUD->Equipment->SetWeaponSlot(NewWeapon->WeaponImage);
+			PC->EquipCharacter->SetEqiupWeapon(NewWeapon);
 		}
 	}
 }
@@ -66,7 +71,6 @@ void UInventory::SetCurrentWeapon(AWeapon * NewWeapon, AWeapon* LastWeapon)
 
 	// 무기 클래스를 임시로 저장할 변수
 	AWeapon* PrevWeapon = nullptr;
-
 	if (LastWeapon)
 	{
 		PrevWeapon = LastWeapon;
@@ -75,7 +79,7 @@ void UInventory::SetCurrentWeapon(AWeapon * NewWeapon, AWeapon* LastWeapon)
 	{
 		PrevWeapon = NewWeapon;
 	}
-	// 교체하는 무기를 다른 곳에 부착
+	// 현재 사용중이던 무기를 다른 곳에 부착
 	if (PrevWeapon)
 	{
 		PrevWeapon->AttachToWeapon(MyPawn);
@@ -83,7 +87,6 @@ void UInventory::SetCurrentWeapon(AWeapon * NewWeapon, AWeapon* LastWeapon)
 
 	// 새로 장착할 무기 클래스를 얻고 손에 부착
 	CurrentWeapon = NewWeapon;
-
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->SetOwnerPawn(MyPawn);
@@ -93,7 +96,7 @@ void UInventory::SetCurrentWeapon(AWeapon * NewWeapon, AWeapon* LastWeapon)
 
 void UInventory::FinishSwapWeapon()
 {
-	
+	CurrentWeapon->SetState(EWeaponState::Idle);
 }
 
 void UInventory::DropItem()
@@ -129,7 +132,7 @@ void UInventory::RemoveWeapon()
 bool UInventory::IsSwapWeapon(int Index) const
 {
 	// 현재 무기와 바꿀 무기가 다를 때 True
-	return WeaponList[Index] != CurrentWeapon;
+	return WeaponList.Num() > Index && WeaponList[Index] != nullptr && WeaponList[Index] != CurrentWeapon;
 }
 
 FName UInventory::GetWeaponType(const EWeaponSlot GetSlot) const
