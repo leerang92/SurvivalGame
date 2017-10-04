@@ -124,6 +124,16 @@ void AWeapon::OnFire()
 		if (NewProjectile) 
 		{
 			NewProjectile->FireDirection(ProjectileDir);
+
+			// 사운드 및 이펙트 재생
+			if (!WeaponFXComp)
+			{
+				WeaponFXComp = PlayEffect(MuzzleFX);
+			}
+			if (!AudioComp)
+			{
+				AudioComp = PlaySound(FireSound);
+			}
 		}
 
 		CurrentAmmo--;
@@ -172,6 +182,9 @@ void AWeapon::StopFire()
 	bFire = false;
 	GetWorldTimerManager().ClearTimer(FireTimerHandle);
 	SetWeaponState();
+
+	StopEffect();
+	StopSound();
 }
 
 void AWeapon::SetState(EWeaponState State)
@@ -219,4 +232,45 @@ void AWeapon::PlayWeaponSound(USoundCue * SoundCue)
 		AC = UGameplayStatics::SpawnSoundAttached(SoundCue, MyPawn->GetRootComponent());
 	}
 }
+
+UParticleSystemComponent* AWeapon::PlayEffect(UParticleSystem * Effect, FName AttachPoint)
+{
+	if (Effect)
+	{
+		UParticleSystemComponent* EffectComp;
+		EffectComp = UGameplayStatics::SpawnEmitterAttached(Effect, Mesh, AttachPoint);
+		return EffectComp;
+	}
+	return nullptr;
+}
+
+void AWeapon::StopEffect()
+{
+	if (WeaponFXComp)
+	{
+		WeaponFXComp->Deactivate();
+		WeaponFXComp = nullptr;
+	}
+}
+
+UAudioComponent * AWeapon::PlaySound(USoundCue * Sound, FName AttachPoint)
+{
+	if (Sound)
+	{
+		UAudioComponent* AC;
+		AC = UGameplayStatics::SpawnSoundAttached(Sound, Mesh);
+		return AC;
+	}
+	return nullptr;
+}
+
+void AWeapon::StopSound()
+{
+	if (AudioComp)
+	{
+		AudioComp->FadeOut(0.3f, 0.0f);
+		AudioComp = nullptr;
+	}
+}
+
 

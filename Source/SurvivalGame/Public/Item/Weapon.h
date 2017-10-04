@@ -79,6 +79,14 @@ protected:
 
 	void PlayWeaponSound(USoundCue* SoundCue);
 
+	UParticleSystemComponent* PlayEffect(UParticleSystem* Effect, FName AttachPoint = "MuzzleSocket");
+
+	void StopEffect();
+
+	UAudioComponent* PlaySound(USoundCue* Sound, FName AttachPoint = "MuzzleSocket");
+
+	void StopSound();
+
 	void SetWeaponState();
 
 	bool IsFire() const;
@@ -123,6 +131,16 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 	USoundCue* ReloadSound;
+
+	UPROPERTY()
+	UAudioComponent* AudioComp;
+
+	/* ¿Ã∆Â∆Æ */
+	UPROPERTY(EditAnywhere, Category = "Effect")
+	UParticleSystem* MuzzleFX;
+
+	UPROPERTY()
+	UParticleSystemComponent* WeaponFXComp;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Type")
 	EWeaponType WeaponType;
