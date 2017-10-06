@@ -40,5 +40,34 @@ public:
 
 protected:
 
-	AActor* TargetActor;
+	APawn* TargetActor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Explosion")
+	float RunDist;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Explosion")
+	USoundCue* ExploeSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Explosion")
+	float ExploeDist;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Explosion")
+	UParticleSystem* ExploeEffect;
+
+	UPROPERTY()
+	UParticleSystemComponent* EffectComp;
+
+	void Explosion();
+
+	UAudioComponent* AudioComp;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	UAnimMontage* RunAnim;
+
+private:
+	void PlayMontage(UAnimMontage* Anim, float InPlayRate = 1.0f, FName StartSelectName = NAME_None);
+
+	UAudioComponent* PlaySound(USoundCue* Sound);
+
+	void Die();
 };

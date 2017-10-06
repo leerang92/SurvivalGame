@@ -34,6 +34,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	FRotator GetAimOffset(float AimPitch, float AimYaw);
 
+	float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser);
+
+	void SetDamage();
+
 protected:
 
 	UPROPERTY()

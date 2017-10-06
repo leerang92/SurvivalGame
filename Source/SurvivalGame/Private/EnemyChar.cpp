@@ -12,11 +12,15 @@ AEnemyChar::AEnemyChar()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	RunDist = 350.0f;
+	ExploeDist = 150.0f;
+
 	SphereCol = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Collision"));
 	SphereCol->AttachTo(GetMesh());
 	SphereCol->OnComponentBeginOverlap.AddDynamic(this, &AEnemyChar::OnOverlapBegin);
 
 	GetCharacterMovement()->UpdatedComponent = GetCapsuleComponent();
+	GetCharacterMovement()->MaxWalkSpeed = 200.0f;
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanJump = true;
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanWalk = true;
 	GetCharacterMovement()->SetJumpAllowed(true);
@@ -30,7 +34,6 @@ AEnemyChar::AEnemyChar()
 void AEnemyChar::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -41,8 +44,24 @@ void AEnemyChar::Tick(float DeltaTime)
 	if (bInPlayer)
 	{
 		AAI_EnemyController* AI = Cast<AAI_EnemyController>(Controller);
-		AI->MoveToLocation(TargetActor->GetActorLocation(), 150.0f, true, false, true);
-		UE_LOG(LogClass, Warning, TEXT("Move"));
+		if (TargetActor == CheckActor(TargetActor->GetActorLocation()))
+		{	
+			AI->Active(TargetActor);
+			float Dist = FVector::Distance(TargetActor->GetActorLocation(), GetActorLocation());
+			if (Dist < ExploeDist)
+			{
+				Explosion();
+			}
+			else if (Dist < RunDist)
+			{
+				GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+			}
+		}
+		else
+		{
+			bInPlayer = false;
+			AI->Passive();
+		}
 	}
 
 }
@@ -65,7 +84,7 @@ AActor * AEnemyChar::CheckActor(FVector EndLoc)
 
 	DrawDebugLine(GetWorld(), StartLoc, EndLoc, FColor::Red, 1.0f, 1.0f);
 	FHitResult Hit(ForceInit);
-	GetWorld()->LineTraceSingleByChannel(Hit, StartLoc, EndLoc, ECC_Camera, TraceParam);
+	GetWorld()->LineTraceSingleByChannel(Hit, StartLoc, EndLoc, ECC_WorldStatic, TraceParam);
 
 	return Hit.GetActor();
 }
@@ -74,11 +93,10 @@ void AEnemyChar::OnOverlapBegin(UPrimitiveComponent * OverlappedComp, AActor * O
 {
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
 	{
-
 		if (OtherActor == CheckActor(OtherActor->GetActorLocation()))
 		{
 			bInPlayer = true;
-			TargetActor = OtherActor;
+			TargetActor = Cast<APawn>(OtherActor);
 		}
 
 	/*	const FVector Start = GetActorLocation();
@@ -107,5 +125,42 @@ void AEnemyChar::OnOverlapEnd(UPrimitiveComponent * OverlappedComp, AActor * Oth
 			bInPlayer = false;
 		}
 	}
+}
+
+void AEnemyChar::Explosion()
+{
+	if (ExploeEffect != nullptr && EffectComp == nullptr)
+	{
+		GetMesh()->SetVisibility(false);
+		EffectComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExploeEffect, GetActorLocation());
+		PlaySound(ExploeSound);
+
+		TArray<AActor*> IgnoreActor;
+		const float Damage = 15.0f;
+		UGameplayStatics::ApplyRadialDamage(GetWorld(), Damage, GetActorLocation(), 150.0f, UDamageType::StaticClass(), IgnoreActor);
+
+		Die();
+	}
+}
+
+void AEnemyChar::PlayMontage(UAnimMontage * Anim, float InPlayRate, FName StartSelectName)
+{
+	PlayAnimMontage(Anim, InPlayRate, StartSelectName);
+}
+
+UAudioComponent * AEnemyChar::PlaySound(USoundCue * Sound)
+{
+	if (!Sound)
+		return nullptr;
+
+	UAudioComponent* AC;
+	AC = UGameplayStatics::SpawnSoundAtLocation(GetWorld(), Sound, GetActorLocation());
+
+	return AC;
+}
+
+void AEnemyChar::Die()
+{
+	Destroy();
 }
 

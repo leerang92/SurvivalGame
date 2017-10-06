@@ -14,7 +14,17 @@ class SURVIVALGAME_API AAI_EnemyController : public AAIController
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+public:
+
+	virtual void BeginPlay() override;
+
+	void Active(APawn* Target);
+
+	void Passive();
+
+	FTimerHandle WaitTimer;
+
+	FVector HomeLocation;
+
+	void ReturnPoint();
 };

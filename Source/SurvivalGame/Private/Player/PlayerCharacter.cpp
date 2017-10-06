@@ -148,6 +148,16 @@ FRotator APlayerCharacter::GetAimOffset(float AimPitch, float AimYaw)
 	return FRotator(AimPitch, AimYaw, 0);
 }
 
+float APlayerCharacter::TakeDamage(float Damage, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
+{
+	const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	UE_LOG(LogClass, Warning, TEXT("%f"), ActualDamage);
+
+	SetLifeSpan(0.001f);
+
+	return 0.0f;
+}
+
 void APlayerCharacter::ZoomIn()
 {
 	if (InventoryComp->GetCurrentWeapon()) 
