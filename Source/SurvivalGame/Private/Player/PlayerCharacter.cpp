@@ -19,6 +19,9 @@ APlayerCharacter::APlayerCharacter()
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
+	MaxHP = 100.0f;
+	CurrentHP = MaxHP;
+
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -151,11 +154,16 @@ FRotator APlayerCharacter::GetAimOffset(float AimPitch, float AimYaw)
 float APlayerCharacter::TakeDamage(float Damage, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
 	const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
-	UE_LOG(LogClass, Warning, TEXT("%f"), ActualDamage);
+	if (ActualDamage > 0.0f)
+	{
+		CurrentHP -= ActualDamage;
+		if (CurrentHP <= 0.0f)
+		{
+			SetLifeSpan(0.001f);
+		}
+	}
 
-	SetLifeSpan(0.001f);
-
-	return 0.0f;
+	return ActualDamage;
 }
 
 void APlayerCharacter::ZoomIn()

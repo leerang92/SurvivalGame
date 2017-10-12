@@ -28,6 +28,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "State")
 	EPlayerState GetPlayerState() const { return CurrentState; }
 
+	// 발사 가능 여부
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	bool GetIsFire() const;
 
@@ -36,16 +37,18 @@ public:
 
 	float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser);
 
-	void SetDamage();
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	FORCEINLINE float GetCurrentHP() const { return CurrentHP; }
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	FORCEINLINE float GetMaxHP() const { return MaxHP; }
 
 protected:
-
-	UPROPERTY()
-	class UUserWidget* PickupTooltip;
-
+	// 무기 교체
 	template<int Value>
 	void SwapWeapon();
 
+	// 무기 줌 인/아웃
 	void ZoomIn();
 	void ZoomOut();
 
@@ -67,6 +70,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Camera")
 	bool IsZoom;
 
+	/* UI 생성 여부 */
 	bool IsInventory;
 	bool IsEquip;
 
@@ -87,7 +91,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "User Interface")
 	TSubclassOf<class UUserWidget> PickupUI;
-
 
 private:
 
@@ -118,5 +121,9 @@ private:
 	void ShowInventory();
 
 	void ShowEquipment();
+
+	float MaxHP;
+
+	float CurrentHP;
 
 };
