@@ -125,6 +125,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	InputComponent->BindAction("SwapWeapon1", IE_Pressed, this, &APlayerCharacter::SwapWeapon<0>);
 	InputComponent->BindAction("SwapWeapon2", IE_Pressed, this, &APlayerCharacter::SwapWeapon<1>);
 
+	/* UI */
 	InputComponent->BindAction("Inventory", IE_Pressed, this, &APlayerCharacter::ShowInventory);
 	InputComponent->BindAction("Equipment", IE_Pressed, this, &APlayerCharacter::ShowEquipment);
 }
@@ -185,24 +186,19 @@ void APlayerCharacter::ZoomOut()
 
 void APlayerCharacter::MoveForward(float Value)
 {
-	// find out which way is forward
 	const FRotator Rotation = Controller->GetControlRotation();
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-	// get forward vector
 	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	AddMovementInput(Direction, Value);
 }
 
 void APlayerCharacter::MoveRight(float Value)
 {
-	// find out which way is right
 	const FRotator Rotation = Controller->GetControlRotation();
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-	// get right vector 
 	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-	// add movement in that direction
 	AddMovementInput(Direction, Value);
 }
 
@@ -318,13 +314,13 @@ AUsableActor * APlayerCharacter::GetUseableItem()
 void APlayerCharacter::ShowInventory()
 {
 	APlayerController* MyControlloer = GetWorld()->GetFirstPlayerController();
-	if (!IsInventory)
+	if (!IsInventory) // UI 보이기
 	{
 		MainHUD->SetInventory(true);
 		MyControlloer->bShowMouseCursor = true;
 		IsInventory = true;
 	}
-	else
+	else // UI 감추기
 	{
 		MainHUD->SetInventory(false);
 		MyControlloer->bShowMouseCursor = false;

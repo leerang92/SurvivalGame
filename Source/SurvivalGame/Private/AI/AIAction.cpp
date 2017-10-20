@@ -3,7 +3,7 @@
 #include "SurvivalGame.h"
 #include "AIAction.h"
 
-UAIAction::UAIAction() : Weight(1)
+UAIAction::UAIAction() : Weight(1), slope(1)
 {
 	
 }
@@ -20,14 +20,6 @@ void UAIAction::SetController(AAI_EnemyController* InOwner)
 
 void UAIAction::SetWeight(float InWeight)
 {
-	Weight += InWeight;
+	Weight += InWeight * slope;
 	Weight = FMath::ClampAngle(Weight, 0.0f, 100.0f);
-	//if (Weight > 100.0f)
-	//{
-	//	Weight = FMath::Max(100.0f, Weight);
-	//}
-	//else if (Weight < 0.0f)
-	//{
-	//	Weight = FMath::Min(0.0f, Weight);
-	//}
 }

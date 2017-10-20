@@ -37,6 +37,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	/* 소유자 설정 */
 	void SetOwnerPawn(APawn* Pawn);
 
 	/* 무기 장착 */
@@ -53,10 +54,12 @@ public:
 
 	void SetState(EWeaponState State);
 
+	/* 재장전  */
 	virtual void OnReload();
 
 	virtual void FinishReload();
 
+	// 몽타주 애니메이션 재생
 	float SetAnimation(UAnimMontage* Animation, float InPlayRate = 1.0f, FName StartSelectName = NAME_None);
 
 	FORCEINLINE bool GetWeaponState() const { return CurrentState == EWeaponState::Fire; }
@@ -73,19 +76,22 @@ protected:
 	// 발사체 생성 및 발사
 	void OnFire();
 
+	// 총구 위치 반환
 	FORCEINLINE FVector GetMuzzleLocation() const {
 		return Mesh->GetSocketLocation(TEXT("MuzzleSocket"));
 	}
 
+	/* 사운드 */
 	void PlayWeaponSound(USoundCue* SoundCue);
-
-	UParticleSystemComponent* PlayEffect(UParticleSystem* Effect, FName AttachPoint = "MuzzleSocket");
-
-	void StopEffect();
 
 	UAudioComponent* PlaySound(USoundCue* Sound, FName AttachPoint = "MuzzleSocket");
 
 	void StopSound();
+
+	/* 이펙트 */
+	UParticleSystemComponent* PlayEffect(UParticleSystem* Effect, FName AttachPoint = "MuzzleSocket");
+
+	void StopEffect();
 
 	void SetWeaponState();
 

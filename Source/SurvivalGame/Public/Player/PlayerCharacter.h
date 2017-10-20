@@ -74,11 +74,13 @@ public:
 	bool IsInventory;
 	bool IsEquip;
 
+	/* 메인 HUD 클래스 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UMG")
 	TSubclassOf<class UUserWidget> MainHUDClass;
 
 	class UMainHUD* MainHUD;
 
+	/* 장비창에 사용 될 캐릭터 액터 */
 	UPROPERTY(EditAnywhere, Category = "Equip Character")
 	TSubclassOf<class AActor> EquipCharacterClass;
 
@@ -88,9 +90,6 @@ public:
 protected:
 	// 현재 상태
 	EPlayerState CurrentState;
-
-	UPROPERTY(EditAnywhere, Category = "User Interface")
-	TSubclassOf<class UUserWidget> PickupUI;
 
 private:
 
@@ -103,25 +102,31 @@ private:
 	void LookUpAtRate(float Rate);
 	void StartCrouch();
 
+	/* 무기 발사, 중지, 재장전 */
 	void StartFire();
 	void StopFire();
 	void StartReload();
 
+	// 포커싱 된 액터
 	UPROPERTY()
 	class AUsableActor* FocusUsableActor;
 
 	bool bHasFocus;
 
+	/* 아이템 줍기 버리기 */
 	void PickupItem();
 
 	void DropItem();
 
+	// 아이템 찾기
 	class AUsableActor* GetUseableItem();
 
+	/* UI */
 	void ShowInventory();
 
 	void ShowEquipment();
 
+	/* 체력 */
 	float MaxHP;
 
 	float CurrentHP;

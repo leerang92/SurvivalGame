@@ -24,10 +24,7 @@ void AAI_EnemyController::BeginPlay()
 void AAI_EnemyController::Active(APawn* Target)
 {
 	TargetActor = Target;
-	/*if (Target != nullptr)
-	{
-		MoveToLocation(Target->GetActorLocation(), 150.0f, true, false, true);
-	}*/
+
 	const int Idx = SelectAction();
 	AllAction[Idx]->Active();
 }
@@ -39,19 +36,14 @@ void AAI_EnemyController::Passive()
 	GetWorld()->GetTimerManager().SetTimer(WaitTimer, this, &AAI_EnemyController::ReturnPoint, 3.0f, false);
 }
 
-void AAI_EnemyController::ReturnPoint()
-{
-	MoveToLocation(HomeLocation, 150.0f, true, false, true);
-	GetWorld()->GetTimerManager().ClearTimer(WaitTimer);
-}
-
 void AAI_EnemyController::Possess(APawn * InPawn)
 {
 	Super::Possess(InPawn);
 
-	for (int i = 0; i < AllowedAction.Num(); i++)
+	// 상태 클래스들을 각각 AIAction으로 형변환 후 배열에 저장
+	for (auto &AllowedAction : AllowedAction)
 	{
-		UAIAction* Action = NewObject<UAIAction>(this, AllowedAction[i]);
+		UAIAction* Action = NewObject<UAIAction>(this, AllowedAction);
 		check(Action);
 		Action->SetController(this);
 		AllAction.Add(Action);
@@ -68,14 +60,11 @@ void AAI_EnemyController::SetStateWeight(const int Index, const float InWeight)
 
 void AAI_EnemyController::DecreaseWeight(const float InWeight)
 {
-	for (int i = 0; i < AllAction.Num(); ++i)
+	// 모든 상태의 가중치 감소
+	for (auto &Action : AllAction)
 	{
-		AllAction[i]->SetWeight(-InWeight);
+		Action->SetWeight(-InWeight);
 	}
-	//for(auto& AI : AllAction)
-	//{
-	//	AI->SetWeight(-InWeight);
-	//}
 }
 
 int AAI_EnemyController::SelectAction() const

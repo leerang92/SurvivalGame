@@ -28,8 +28,6 @@ public:
 
 	FVector HomeLocation;
 
-	void ReturnPoint();
-
 public:
 	virtual void Possess(APawn* InPawn) override;
 

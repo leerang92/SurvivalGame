@@ -31,4 +31,6 @@ protected:
 	TWeakObjectPtr<AAI_EnemyController> AICon;
 
 	float Weight;
+
+	float slope;
 };
